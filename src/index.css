@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "BB Textos";
+  src: url("./assets/fonts/BancoDoBrasilTextos-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "BB Textos";
+  src: url("./assets/fonts/BancoDoBrasilTextos-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "BB Textos";
+  src: url("./assets/fonts/BancoDoBrasilTextos-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "BB Textos";
+  src: url("./assets/fonts/BancoDoBrasilTextos-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: "BB Textos";
+  src: url("./assets/fonts/BancoDoBrasilTextos-XBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+}
+@font-face {
+  font-family: "BB Titulos";
+  src: url("./assets/fonts/BancoDoBrasilTitulos-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "BB Titulos";
+  src: url("./assets/fonts/BancoDoBrasilTitulos-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "BB Titulos";
+  src: url("./assets/fonts/BancoDoBrasilTitulos-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@theme {
+  --font-bb-textos: "BB Textos", sans-serif;
+  --font-bb-titulos: "BB Titulos", sans-serif;
+
+  --color-brand-blue: #005f96;
+  --color-brand-white: #ffffff;
+  --color-brand-yellow: #fcf82a;
+  --color-brand-bg-blue: #003857;
+  --color-secondary: #dee8f4;
+  --color-text-black: #111214;
+  --color-text-blue: #132745;
+  --color-text-zinc: #2d333a;
+  --color-text-blue-light: #00578b;
+  --color-text-link: #1d61a4;
+  --color-disabled: #aab5c2;
+  --color-default: #fcfdfe;
+  --color-neutral: #f2f4f8;
+  --color-border: #e6eaee;
+  --color-soft: #6c7077;
+  --color-danger: #d51b06;
+
+  --color-success: #16a34a;
+  --color-warning: #eab308;
+}
+
+body {
+  font-family: var(--font-bb-textos);
+  color: var(--color-text-black);
+  background-color: var(--color-neutral);
+  margin: 0;
+}
