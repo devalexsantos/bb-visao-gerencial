@@ -99,10 +99,11 @@ export function App() {
           </div>
         )}
 
-        {selectedRac && (
+        {selectedRac && selectedAns && (
           <div ref={detailRef}>
             <RcoDetail
               rac={selectedRac}
+              ansNome={selectedAns.nome}
               selectedIndicadorId={selectedIndicadorId}
               onSelectIndicador={handleIndicadorSelect}
             />

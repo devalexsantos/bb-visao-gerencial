@@ -30,6 +30,7 @@ export interface Indicador {
   idRco: string
   idIndicador: string
   nome: string
+  tipo: string
   direcao: "ascendente" | "descendente" | "bidirecional"
   meta: number
   apurado: number

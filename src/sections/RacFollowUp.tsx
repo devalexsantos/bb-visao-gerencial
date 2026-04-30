@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, Eye, Info } from "lucide-react"
+import { HintCard } from "../components/HintCard"
 import type { Ans, Rac } from "../types/ans"
 
 interface RacFollowUpProps {
@@ -29,9 +30,19 @@ export function RacFollowUp({ ans, selectedRacId, onSelectRac }: RacFollowUpProp
 
   return (
     <section className="bg-white rounded-lg shadow-sm p-4">
-      <h2 className="text-sm font-bold text-text-blue mb-4">Acompanhamento do ANS</h2>
+      <div className="mb-3">
+        <h2 className="text-base font-bold text-text-blue">Acompanhamento do ANS</h2>
+        <p className="text-xs text-soft mt-0.5">
+          Selecione um periodo para explorar os indicadores detalhados.
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="bg-blue-50 border border-blue-100 text-text-blue text-xs rounded-md px-3 py-2 mb-3 flex items-center gap-2">
+        <Info size={14} className="text-brand-blue shrink-0" />
+        Cada linha mostra o resultado geral do periodo. Clique para ver os indicadores.
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Card detalhes do ANS */}
         <div className="bg-neutral rounded-lg p-4 space-y-3">
           <h3 className="font-bold text-text-blue text-base">{ans.nome}</h3>
@@ -64,7 +75,8 @@ export function RacFollowUp({ ans, selectedRacId, onSelectRac }: RacFollowUpProp
               <thead>
                 <tr className="bg-brand-bg-blue text-white">
                   <th className="text-left px-4 py-2 rounded-tl-lg">Periodo</th>
-                  <th className="text-left px-4 py-2 rounded-tr-lg">Resultado</th>
+                  <th className="text-left px-4 py-2">Resultado</th>
+                  <th className="px-4 py-2 rounded-tr-lg w-px"></th>
                 </tr>
               </thead>
               <tbody>
@@ -84,6 +96,18 @@ export function RacFollowUp({ ans, selectedRacId, onSelectRac }: RacFollowUpProp
                         <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${statusColors[rac.conformidade]}`}>
                           {statusLabels[rac.conformidade]}
                         </span>
+                      </td>
+                      <td className="px-4 py-2 text-right whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onSelectRac(rac.id)
+                          }}
+                          className="inline-flex items-center gap-1.5 border border-brand-blue text-brand-blue text-xs font-medium rounded-md px-2.5 py-1 hover:bg-brand-blue hover:text-white transition-colors cursor-pointer"
+                        >
+                          <Eye size={14} /> Visualizar
+                        </button>
                       </td>
                     </tr>
                   )
@@ -119,6 +143,12 @@ export function RacFollowUp({ ans, selectedRacId, onSelectRac }: RacFollowUpProp
             </div>
           )}
         </div>
+
+        {/* Card lateral de Dica */}
+        <HintCard variant="dica" title="Dica">
+          Clique em um periodo para ver os indicadores detalhados e, em seguida,
+          em um indicador para abrir o historico de apuracao.
+        </HintCard>
       </div>
     </section>
   )

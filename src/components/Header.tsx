@@ -10,7 +10,7 @@ export function Header() {
           className="w-[36px] h-[36px]"
         />
         <h1 className="text-lg text-brand-white font-bold font-bb-titulos">
-          Visao Gerencial - Acompanhamento de ANS
+          Visao Cliente - Acompanhamento de ANS
         </h1>
       </div>
       <div className="w-full h-1 bg-brand-yellow" />

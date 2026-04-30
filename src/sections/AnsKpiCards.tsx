@@ -15,25 +15,17 @@ function calcularConformidade(ans: Ans): number {
 export function AnsKpiCards({ ansList, selectedAnsId, onSelectAns }: AnsKpiCardsProps) {
   if (ansList.length === 0) return null
 
-  const hasSelection = selectedAnsId !== null
-
   return (
     <section className="bg-white rounded-lg shadow-sm p-4">
       <h2 className="text-sm font-bold text-text-blue mb-3">ANS Vigentes</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {ansList.map((ans) => {
           const isSelected = ans.id === selectedAnsId
-          const isInactive = hasSelection && !isSelected
           const pct = calcularConformidade(ans)
 
-          let cardClasses: string
-          if (isSelected) {
-            cardClasses = "bg-brand-yellow text-brand-blue border-2 border-brand-blue"
-          } else if (isInactive) {
-            cardClasses = "bg-gray-300 text-brand-blue border-2 border-transparent"
-          } else {
-            cardClasses = "bg-brand-blue text-brand-yellow border-2 border-transparent"
-          }
+          const cardClasses = isSelected
+            ? "bg-[#1E3A5F] text-white shadow-md border-2 border-[#1E3A5F]"
+            : "bg-[#E5E7EB] text-[#374151] border-2 border-transparent hover:bg-[#D1D5DB]"
 
           return (
             <button

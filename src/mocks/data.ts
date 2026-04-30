@@ -50,12 +50,12 @@ const responsaveisMap: Record<string, { apuracao: string; performance: string }>
 
 function gerarIndicadores(periodo: string): Indicador[] {
   const defs = [
-    { idRco: "RCO-001", idIndicador: "IND-101", nome: "Disponibilidade de Sistemas Criticos", direcao: "ascendente" as const, meta: 99.5 },
-    { idRco: "RCO-001", idIndicador: "IND-102", nome: "Tempo Medio de Recuperacao (MTTR)", direcao: "descendente" as const, meta: 30 },
-    { idRco: "RCO-002", idIndicador: "IND-201", nome: "Taxa de Incidentes Criticos", direcao: "descendente" as const, meta: 5 },
-    { idRco: "RCO-002", idIndicador: "IND-202", nome: "Indice de Satisfacao do Usuario", direcao: "ascendente" as const, meta: 85 },
-    { idRco: "RCO-003", idIndicador: "IND-301", nome: "Tempo de Resposta de Transacoes", direcao: "descendente" as const, meta: 2.5 },
-    { idRco: "RCO-003", idIndicador: "IND-302", nome: "Variacao de Performance", direcao: "bidirecional" as const, meta: 10 },
+    { idRco: "RCO-001", idIndicador: "IND-101", nome: "Disponibilidade de Sistemas Criticos", tipo: "Disponibilidade", direcao: "ascendente" as const, meta: 99.5 },
+    { idRco: "RCO-001", idIndicador: "IND-102", nome: "Tempo Medio de Recuperacao (MTTR)", tipo: "Tempo", direcao: "descendente" as const, meta: 30 },
+    { idRco: "RCO-002", idIndicador: "IND-201", nome: "Taxa de Incidentes Criticos", tipo: "Incidentes", direcao: "descendente" as const, meta: 5 },
+    { idRco: "RCO-002", idIndicador: "IND-202", nome: "Indice de Satisfacao do Usuario", tipo: "Qualidade", direcao: "ascendente" as const, meta: 85 },
+    { idRco: "RCO-003", idIndicador: "IND-301", nome: "Tempo de Resposta de Transacoes", tipo: "Performance", direcao: "descendente" as const, meta: 2.5 },
+    { idRco: "RCO-003", idIndicador: "IND-302", nome: "Variacao de Performance", tipo: "Performance", direcao: "bidirecional" as const, meta: 10 },
   ]
   return defs.map((d, i) => {
     const variacao = (Math.random() - 0.4) * d.meta * 0.2
@@ -81,6 +81,7 @@ function gerarIndicadores(periodo: string): Indicador[] {
       idRco: d.idRco,
       idIndicador: d.idIndicador,
       nome: d.nome,
+      tipo: d.tipo,
       direcao: d.direcao,
       meta: d.meta,
       apurado,

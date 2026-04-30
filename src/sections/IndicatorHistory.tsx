@@ -31,9 +31,12 @@ function getBarColor(
   meta: number,
   direcao: Indicador["direcao"],
 ): string {
-  if (direcao === "bidirecional") return "#3b82f6"
-  if (direcao === "ascendente") return apurado >= meta ? "#16a34a" : "#d51b06"
-  return apurado <= meta ? "#16a34a" : "#d51b06"
+  if (direcao === "bidirecional") {
+    const diff = Math.abs(apurado - meta)
+    return diff <= meta * 0.1 ? "#4ADE80" : "#F87171"
+  }
+  if (direcao === "ascendente") return apurado >= meta ? "#4ADE80" : "#F87171"
+  return apurado <= meta ? "#4ADE80" : "#F87171"
 }
 
 export function IndicatorHistory({ indicador }: IndicatorHistoryProps) {
@@ -91,31 +94,34 @@ export function IndicatorHistory({ indicador }: IndicatorHistoryProps) {
       </div>
 
       {/* Grafico */}
-      <div className="bg-[#2d333a] rounded-lg p-4">
+      <div className="bg-white border border-border rounded-lg p-4">
         <ResponsiveContainer width="100%" height={320}>
           <BarChart data={paginatedData} margin={{ top: 30, right: 20, left: 20, bottom: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#444" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
             <XAxis
               dataKey="periodo"
-              tick={{ fill: "#ccc", fontSize: 11 }}
-              axisLine={{ stroke: "#555" }}
-              tickLine={{ stroke: "#555" }}
+              tick={{ fill: "#374151", fontSize: 11 }}
+              axisLine={{ stroke: "#E5E7EB" }}
+              tickLine={{ stroke: "#E5E7EB" }}
             />
             <YAxis
               domain={[0, yMax]}
-              tick={{ fill: "#ccc", fontSize: 11 }}
-              axisLine={{ stroke: "#555" }}
-              tickLine={{ stroke: "#555" }}
+              tick={{ fill: "#374151", fontSize: 11 }}
+              axisLine={{ stroke: "#E5E7EB" }}
+              tickLine={{ stroke: "#E5E7EB" }}
             />
             <Tooltip
+              cursor={{ fill: "rgba(0,0,0,0.04)" }}
               contentStyle={{
-                backgroundColor: "#1a1f25",
-                border: "1px solid #444",
+                backgroundColor: "#FFFFFF",
+                border: "1px solid #E5E7EB",
                 borderRadius: "8px",
-                color: "#fff",
+                color: "#111214",
                 fontSize: "12px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
               }}
-              labelStyle={{ color: "#aaa" }}
+              labelStyle={{ color: "#374151", fontWeight: 600 }}
+              itemStyle={{ color: "#111214" }}
             />
             <ReferenceLine
               y={indicador.meta}
@@ -124,22 +130,26 @@ export function IndicatorHistory({ indicador }: IndicatorHistoryProps) {
               strokeDasharray="6 3"
               label={{
                 value: `Meta: ${indicador.meta}`,
-                fill: "#f59e0b",
+                fill: "#b45309",
                 fontSize: 11,
                 position: "right",
               }}
             />
             <Bar dataKey="apurado" radius={[4, 4, 0, 0]} maxBarSize={50}>
-              {paginatedData.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={getBarColor(entry.apurado, entry.meta, indicador.direcao)}
-                />
-              ))}
+              {paginatedData.map((entry, index) => {
+                const isCurrent = index === paginatedData.length - 1
+                return (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={getBarColor(entry.apurado, entry.meta, indicador.direcao)}
+                    fillOpacity={isCurrent ? 1.0 : 0.7}
+                  />
+                )
+              })}
               <LabelList
                 dataKey="apurado"
                 position="top"
-                fill="#fff"
+                fill="#111214"
                 fontSize={11}
                 fontWeight={600}
               />
