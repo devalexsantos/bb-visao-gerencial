@@ -30,6 +30,10 @@ export interface Ans {
   active: string // "true" | "false" | "0" | "1"
   opened_at?: string
   closed_at?: string
+  // % de conformidade já calculado pelo backend (ans_area).
+  conformidade?: number | null
+  conformidade_conformes?: number
+  conformidade_total?: number
   sys_id: string
   url: string
 }

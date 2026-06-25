@@ -1,6 +1,7 @@
 import { AlertTriangle, Info } from "lucide-react"
 import { HintCard } from "../components/HintCard"
 import type { Ans, IndicadorDoAns } from "../types/portal"
+import { toStringArray } from "../utils/normalize"
 
 interface IndicadoresListProps {
   ans: Ans
@@ -32,6 +33,7 @@ export function IndicadoresList({
 }: IndicadoresListProps) {
   const titulo = ans.apelido?.trim() || ans.servico
   const vigencia = formatVigencia(ans)
+  const ofertas = toStringArray(ans.ofertas)
 
   return (
     <section className="bg-white rounded-lg shadow-sm p-4">
@@ -63,11 +65,11 @@ export function IndicadoresList({
               <span className="font-medium text-soft">Servico:</span>{" "}
               <span className="text-text-black">{ans.servico}</span>
             </div>
-            {ans.ofertas.length > 0 && (
+            {ofertas.length > 0 && (
               <div>
                 <span className="font-medium text-soft">Ofertas:</span>
                 <ul className="mt-1 space-y-1">
-                  {ans.ofertas.map((oferta) => (
+                  {ofertas.map((oferta) => (
                     <li
                       key={oferta}
                       className="text-text-black pl-3 before:content-['•'] before:mr-2 before:text-brand-blue"
