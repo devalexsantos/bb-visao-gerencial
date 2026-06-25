@@ -1,21 +1,21 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { AlertTriangle } from "lucide-react"
 import { Layout } from "./components/Layout"
-import { ansList } from "./mocks/data"
+import { useAnsPorArea, useIndicadoresDoAns } from "./hooks/usePortal"
 import { AnsKpiCards } from "./sections/AnsKpiCards"
 import { AreaFilter } from "./sections/AreaFilter"
-import { RacFollowUp } from "./sections/RacFollowUp"
-import { RcoDetail } from "./sections/RcoDetail"
+import { IndicadoresList } from "./sections/IndicadoresList"
 import { IndicatorHistory } from "./sections/IndicatorHistory"
 
 export function App() {
   const [selectedArea, setSelectedArea] = useState<string | null>(null)
-  const [selectedAnsId, setSelectedAnsId] = useState<string | null>(null)
-  const [selectedRacId, setSelectedRacId] = useState<string | null>(null)
-  const [selectedIndicadorId, setSelectedIndicadorId] = useState<string | null>(null)
+  const [selectedAnsSysId, setSelectedAnsSysId] = useState<string | null>(null)
+  const [selectedIndicadorSysId, setSelectedIndicadorSysId] = useState<
+    string | null
+  >(null)
 
   const ansRef = useRef<HTMLDivElement>(null)
-  const followUpRef = useRef<HTMLDivElement>(null)
-  const detailRef = useRef<HTMLDivElement>(null)
+  const indicadoresRef = useRef<HTMLDivElement>(null)
   const historyRef = useRef<HTMLDivElement>(null)
 
   const scrollTo = useCallback((ref: React.RefObject<HTMLDivElement | null>) => {
@@ -24,95 +24,105 @@ export function App() {
     }, 100)
   }, [])
 
-  const handleAreaChange = useCallback((areaId: string) => {
-    setSelectedArea(areaId)
-    setSelectedAnsId(null)
-    setSelectedRacId(null)
-    setSelectedIndicadorId(null)
+  const handleAreaChange = useCallback((area: string) => {
+    setSelectedArea(area)
+    setSelectedAnsSysId(null)
+    setSelectedIndicadorSysId(null)
   }, [])
 
-  const handleAnsSelect = useCallback((ansId: string) => {
-    setSelectedAnsId(ansId)
-    setSelectedRacId(null)
-    setSelectedIndicadorId(null)
+  const handleAnsSelect = useCallback((sysId: string) => {
+    setSelectedAnsSysId(sysId)
+    setSelectedIndicadorSysId(null)
   }, [])
 
-  const handleRacSelect = useCallback((racId: string) => {
-    setSelectedRacId(racId)
-    setSelectedIndicadorId(null)
-  }, [])
-
-  const handleIndicadorSelect = useCallback((indicadorId: string) => {
-    setSelectedIndicadorId(indicadorId)
+  const handleIndicadorSelect = useCallback((sysId: string) => {
+    setSelectedIndicadorSysId(sysId)
   }, [])
 
   // Scroll effects
   useEffect(() => {
-    if (selectedAnsId) scrollTo(followUpRef)
-  }, [selectedAnsId, scrollTo])
+    if (selectedAnsSysId) scrollTo(indicadoresRef)
+  }, [selectedAnsSysId, scrollTo])
 
   useEffect(() => {
-    if (selectedRacId) scrollTo(detailRef)
-  }, [selectedRacId, scrollTo])
+    if (selectedIndicadorSysId) scrollTo(historyRef)
+  }, [selectedIndicadorSysId, scrollTo])
 
-  useEffect(() => {
-    if (selectedIndicadorId) scrollTo(historyRef)
-  }, [selectedIndicadorId, scrollTo])
+  // Dados da API
+  const ansQuery = useAnsPorArea(selectedArea)
+  const ansList = ansQuery.data?.result ?? []
+  const selectedAns = ansList.find((a) => a.sys_id === selectedAnsSysId)
 
-  // Derived data
-  const filteredAns = selectedArea
-    ? ansList.filter((a) => a.areaId === selectedArea)
-    : []
-
-  const selectedAns = filteredAns.find((a) => a.id === selectedAnsId)
-
-  const selectedRac = selectedAns?.racs.find(
-    (r) => r.id === selectedRacId,
-  )
-
-  const selectedIndicador = selectedRac?.indicadores.find(
-    (i) => i.id === selectedIndicadorId,
-  )
+  const indicadoresQuery = useIndicadoresDoAns(selectedAnsSysId)
 
   return (
     <Layout>
       <div className="space-y-4">
-        <AreaFilter selectedArea={selectedArea} onAreaChange={handleAreaChange} />
+        <AreaFilter
+          selectedArea={selectedArea}
+          onAreaChange={handleAreaChange}
+        />
 
         {selectedArea && (
           <div ref={ansRef}>
-            <AnsKpiCards
-              ansList={filteredAns}
-              selectedAnsId={selectedAnsId}
-              onSelectAns={handleAnsSelect}
-            />
+            {ansQuery.isLoading && (
+              <section className="bg-white rounded-lg shadow-sm p-4">
+                <p className="text-sm text-soft py-6 text-center">
+                  Carregando ANS da area…
+                </p>
+              </section>
+            )}
+
+            {ansQuery.isError && (
+              <section className="bg-white rounded-lg shadow-sm p-4">
+                <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <AlertTriangle
+                    size={16}
+                    className="text-danger mt-0.5 shrink-0"
+                  />
+                  <p className="text-sm text-red-800">
+                    {ansQuery.error?.message ?? "Erro ao carregar os ANS."}
+                  </p>
+                </div>
+              </section>
+            )}
+
+            {!ansQuery.isLoading && !ansQuery.isError && ansList.length === 0 && (
+              <section className="bg-white rounded-lg shadow-sm p-4">
+                <p className="text-sm text-soft py-6 text-center">
+                  Nenhum ANS encontrado para esta area.
+                </p>
+              </section>
+            )}
+
+            {ansList.length > 0 && (
+              <AnsKpiCards
+                ansList={ansList}
+                selectedAnsSysId={selectedAnsSysId}
+                onSelectAns={handleAnsSelect}
+              />
+            )}
           </div>
         )}
 
         {selectedAns && (
-          <div ref={followUpRef}>
-            <RacFollowUp
+          <div ref={indicadoresRef}>
+            <IndicadoresList
               ans={selectedAns}
-              selectedRacId={selectedRacId}
-              onSelectRac={handleRacSelect}
-            />
-          </div>
-        )}
-
-        {selectedRac && selectedAns && (
-          <div ref={detailRef}>
-            <RcoDetail
-              rac={selectedRac}
-              ansNome={selectedAns.nome}
-              selectedIndicadorId={selectedIndicadorId}
+              indicadores={indicadoresQuery.data?.result ?? []}
+              aviso={indicadoresQuery.data?.aviso}
+              isLoading={indicadoresQuery.isLoading}
+              isError={indicadoresQuery.isError}
+              errorMessage={indicadoresQuery.error?.message}
+              selectedIndicadorSysId={selectedIndicadorSysId}
               onSelectIndicador={handleIndicadorSelect}
             />
           </div>
         )}
 
-        {selectedIndicador && (
+        {selectedIndicadorSysId && (
           <div ref={historyRef}>
-            <IndicatorHistory indicador={selectedIndicador} />
+            <IndicatorHistory indicadorSysId={selectedIndicadorSysId} />
           </div>
         )}
       </div>

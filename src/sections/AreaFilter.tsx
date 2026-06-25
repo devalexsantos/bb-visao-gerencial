@@ -1,13 +1,13 @@
 import { Select } from "../components/ui/Select"
-import { areas } from "../mocks/data"
+import { AREAS } from "../config/areas"
 
 interface AreaFilterProps {
   selectedArea: string | null
-  onAreaChange: (areaId: string) => void
+  onAreaChange: (area: string) => void
 }
 
 export function AreaFilter({ selectedArea, onAreaChange }: AreaFilterProps) {
-  const options = areas.map((a) => ({ value: a.id, label: a.nome }))
+  const options = AREAS
 
   return (
     <section className="bg-white rounded-lg shadow-sm p-4">
