@@ -87,6 +87,13 @@ export interface IndicadorHeader {
   unidade_de_medida: string
 }
 
+// ---------- Resultado consolidado (tri-estado + sem dado) ----------
+export type ResultadoPeriodo =
+  | "conformidade"
+  | "indicio"
+  | "nao_conformidade"
+  | "sem_dado"
+
 // ---------- Ponto da série (gráfico) ----------
 export interface ApuracaoPonto {
   number: string // RAP...
@@ -97,11 +104,74 @@ export interface ApuracaoPonto {
   apurado: number | null
   meta: number | null
   conforme: boolean | null
+  resultado?: ResultadoPeriodo // tri-estado já calculado pelo backend
   unidade_de_medida: string
   justificativa: string
   versao: string
   selecionada?: boolean // só em apuracao_historico
   sys_id: string
+}
+
+// ---------- Ação: ans_periodos (acompanhamento mensal do ANS) ----------
+export interface AnsHeader {
+  numero_ans: string
+  apelido: string
+  servico: string
+  ofertas: string[]
+  nome_uor: string
+  opened_at?: string
+  closed_at?: string
+  sys_id: string
+}
+
+export interface PeriodoResultado {
+  periodo: string // "2025-01-01"
+  periodo_label: string // "Jan/2025"
+  periodo_mascara: string // "Janeiro"
+  ano: string
+  resultado: ResultadoPeriodo
+  total_indicadores: number
+  conformidade: number
+  indicio: number
+  nao_conformidade: number
+}
+
+export interface AnsPeriodosResponse {
+  count: number
+  ans_filtro: string
+  ans_number: string
+  ans: AnsHeader
+  result: PeriodoResultado[]
+  aviso?: string // presente quando o ANS não tem indicadores vinculados
+}
+
+// ---------- Ação: indicadores_periodo (indicadores de um ANS num mês) ----------
+export interface IndicadorDoPeriodo {
+  sys_id: string
+  number: string
+  nome_indicador: string
+  tipo: string
+  direcao: string // "ascendente" | "descendente" | "bidirecional"
+  unidade_de_medida: string
+  meta: number | null
+  apurado: number | null
+  resultado: ResultadoPeriodo
+  justificativa: string
+  apuracao_sys_id: string | null
+  apuracao_number: string | null
+}
+
+export interface IndicadoresPeriodoResponse {
+  count: number
+  ans_filtro: string
+  ans_number: string
+  periodo: string // "2025-01-01"
+  periodo_label: string // "Jan/2025"
+  ano: string
+  resultado: ResultadoPeriodo // consolidado do mês
+  total_indicadores: number
+  result: IndicadorDoPeriodo[]
+  aviso?: string
 }
 
 // ---------- Ação: apuracoes ----------

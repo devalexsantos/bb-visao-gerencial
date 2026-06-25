@@ -1,20 +1,23 @@
-import { useCallback, useEffect, useRef, useState } from "react"
 import { AlertTriangle } from "lucide-react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Layout } from "./components/Layout"
-import { useAnsPorArea, useIndicadoresDoAns } from "./hooks/usePortal"
+import { useAnsPorArea } from "./hooks/usePortal"
 import { AnsKpiCards } from "./sections/AnsKpiCards"
+import { AnsPeriodos } from "./sections/AnsPeriodos"
 import { AreaFilter } from "./sections/AreaFilter"
-import { IndicadoresList } from "./sections/IndicadoresList"
+import { IndicadoresPeriodo } from "./sections/IndicadoresPeriodo"
 import { IndicatorHistory } from "./sections/IndicatorHistory"
 
 export function App() {
   const [selectedArea, setSelectedArea] = useState<string | null>(null)
   const [selectedAnsSysId, setSelectedAnsSysId] = useState<string | null>(null)
+  const [selectedPeriodo, setSelectedPeriodo] = useState<string | null>(null)
+  const [selectedApuracao, setSelectedApuracao] = useState<string | null>(null)
   const [selectedIndicadorSysId, setSelectedIndicadorSysId] = useState<
     string | null
   >(null)
 
-  const ansRef = useRef<HTMLDivElement>(null)
+  const periodosRef = useRef<HTMLDivElement>(null)
   const indicadoresRef = useRef<HTMLDivElement>(null)
   const historyRef = useRef<HTMLDivElement>(null)
 
@@ -27,33 +30,54 @@ export function App() {
   const handleAreaChange = useCallback((area: string) => {
     setSelectedArea(area)
     setSelectedAnsSysId(null)
+    setSelectedPeriodo(null)
+    setSelectedApuracao(null)
     setSelectedIndicadorSysId(null)
   }, [])
 
   const handleAnsSelect = useCallback((sysId: string) => {
     setSelectedAnsSysId(sysId)
+    setSelectedPeriodo(null)
+    setSelectedApuracao(null)
     setSelectedIndicadorSysId(null)
   }, [])
 
-  const handleIndicadorSelect = useCallback((sysId: string) => {
-    setSelectedIndicadorSysId(sysId)
+  const handlePeriodoSelect = useCallback((periodo: string) => {
+    setSelectedPeriodo(periodo)
+    setSelectedApuracao(null)
+    setSelectedIndicadorSysId(null)
   }, [])
+
+  const handleIndicadorSelect = useCallback(
+    (apuracaoNumber: string, indicadorSysId: string) => {
+      setSelectedApuracao(apuracaoNumber)
+      setSelectedIndicadorSysId(indicadorSysId)
+    },
+    [],
+  )
 
   // Scroll effects
   useEffect(() => {
-    if (selectedAnsSysId) scrollTo(indicadoresRef)
+    if (selectedAnsSysId) scrollTo(periodosRef)
   }, [selectedAnsSysId, scrollTo])
 
   useEffect(() => {
-    if (selectedIndicadorSysId) scrollTo(historyRef)
-  }, [selectedIndicadorSysId, scrollTo])
+    if (selectedPeriodo) scrollTo(indicadoresRef)
+  }, [selectedPeriodo, scrollTo])
+
+  useEffect(() => {
+    if (selectedApuracao) scrollTo(historyRef)
+  }, [selectedApuracao, scrollTo])
 
   // Dados da API
   const ansQuery = useAnsPorArea(selectedArea)
-  const ansList = ansQuery.data?.result ?? []
+  const ansList = Array.isArray(ansQuery.data?.result)
+    ? ansQuery.data.result
+    : []
   const selectedAns = ansList.find((a) => a.sys_id === selectedAnsSysId)
-
-  const indicadoresQuery = useIndicadoresDoAns(selectedAnsSysId)
+  const ansNome = selectedAns
+    ? selectedAns.apelido?.trim() || selectedAns.servico
+    : ""
 
   return (
     <Layout>
@@ -64,7 +88,7 @@ export function App() {
         />
 
         {selectedArea && (
-          <div ref={ansRef}>
+          <div>
             {ansQuery.isLoading && (
               <section className="bg-white rounded-lg shadow-sm p-4">
                 <p className="text-sm text-soft py-6 text-center">
@@ -87,13 +111,15 @@ export function App() {
               </section>
             )}
 
-            {!ansQuery.isLoading && !ansQuery.isError && ansList.length === 0 && (
-              <section className="bg-white rounded-lg shadow-sm p-4">
-                <p className="text-sm text-soft py-6 text-center">
-                  Nenhum ANS encontrado para esta area.
-                </p>
-              </section>
-            )}
+            {!ansQuery.isLoading &&
+              !ansQuery.isError &&
+              ansList.length === 0 && (
+                <section className="bg-white rounded-lg shadow-sm p-4">
+                  <p className="text-sm text-soft py-6 text-center">
+                    Nenhum ANS encontrado para esta area.
+                  </p>
+                </section>
+              )}
 
             {ansList.length > 0 && (
               <AnsKpiCards
@@ -106,23 +132,33 @@ export function App() {
         )}
 
         {selectedAns && (
-          <div ref={indicadoresRef}>
-            <IndicadoresList
+          <div ref={periodosRef}>
+            <AnsPeriodos
               ans={selectedAns}
-              indicadores={indicadoresQuery.data?.result ?? []}
-              aviso={indicadoresQuery.data?.aviso}
-              isLoading={indicadoresQuery.isLoading}
-              isError={indicadoresQuery.isError}
-              errorMessage={indicadoresQuery.error?.message}
-              selectedIndicadorSysId={selectedIndicadorSysId}
+              selectedPeriodo={selectedPeriodo}
+              onSelectPeriodo={handlePeriodoSelect}
+            />
+          </div>
+        )}
+
+        {selectedAns && selectedPeriodo && (
+          <div ref={indicadoresRef}>
+            <IndicadoresPeriodo
+              ansSysId={selectedAns.sys_id}
+              periodo={selectedPeriodo}
+              ansNome={ansNome}
+              selectedApuracao={selectedApuracao}
               onSelectIndicador={handleIndicadorSelect}
             />
           </div>
         )}
 
-        {selectedIndicadorSysId && (
+        {selectedApuracao && selectedIndicadorSysId && (
           <div ref={historyRef}>
-            <IndicatorHistory indicadorSysId={selectedIndicadorSysId} />
+            <IndicatorHistory
+              indicadorSysId={selectedIndicadorSysId}
+              apuracaoId={selectedApuracao}
+            />
           </div>
         )}
       </div>

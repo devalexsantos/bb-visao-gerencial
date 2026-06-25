@@ -1,31 +1,51 @@
-// Mapeia o campo tri-estado `conforme` (true | false | null) da API para o status
-// visual do portal. A faixa "indício" (amarela) é regra de negócio que a API ainda
-// não calcula, então só temos 3 estados: conformidade, não conformidade e sem dado.
+import type { ResultadoPeriodo } from "../types/portal"
 
-export type StatusConforme = "conformidade" | "nao_conformidade" | "sem_dado"
+// O backend agora entrega o `resultado` já consolidado (tri-estado + sem dado),
+// tanto no acompanhamento mensal (ans_periodos) quanto em cada ponto das séries
+// (apuracoes / apuracao_historico). O frontend só mapeia para rótulo e cor.
 
-export function conformeToStatus(conforme: boolean | null | undefined): StatusConforme {
-  if (conforme === true) return "conformidade"
-  if (conforme === false) return "nao_conformidade"
+export function toResultado(value: unknown): ResultadoPeriodo {
+  if (
+    value === "conformidade" ||
+    value === "indicio" ||
+    value === "nao_conformidade"
+  ) {
+    return value
+  }
   return "sem_dado"
 }
 
-export const statusLabels: Record<StatusConforme, string> = {
+// Quando um ponto da série não trouxer `resultado` (compatibilidade), deriva do
+// campo booleano `conforme`.
+export function pontoResultado(p: {
+  resultado?: ResultadoPeriodo | null
+  conforme?: boolean | null
+}): ResultadoPeriodo {
+  if (p.resultado) return toResultado(p.resultado)
+  if (p.conforme === true) return "conformidade"
+  if (p.conforme === false) return "nao_conformidade"
+  return "sem_dado"
+}
+
+export const resultadoLabels: Record<ResultadoPeriodo, string> = {
   conformidade: "Conformidade",
+  indicio: "Indicio",
   nao_conformidade: "Nao Conformidade",
   sem_dado: "Sem dado",
 }
 
 // Classes do badge (reaproveitam os tokens definidos em index.css).
-export const statusBadgeClasses: Record<StatusConforme, string> = {
+export const resultadoBadgeClasses: Record<ResultadoPeriodo, string> = {
   conformidade: "bg-success text-white",
+  indicio: "bg-warning text-text-black",
   nao_conformidade: "bg-danger text-white",
   sem_dado: "bg-gray-300 text-gray-700",
 }
 
-// Cor da barra do gráfico por conformidade.
-export const statusBarColor: Record<StatusConforme, string> = {
+// Cor da barra do gráfico por resultado.
+export const resultadoBarColor: Record<ResultadoPeriodo, string> = {
   conformidade: "#4ADE80",
+  indicio: "#FACC15",
   nao_conformidade: "#F87171",
   sem_dado: "#D1D5DB",
 }

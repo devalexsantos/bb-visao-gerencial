@@ -1,5 +1,5 @@
 import { AlertTriangle, ChevronLeft, ChevronRight, Undo2 } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Bar,
   BarChart,
@@ -14,55 +14,61 @@ import {
 } from "recharts"
 import { useApuracoes, useHistoricoApuracao } from "../hooks/usePortal"
 import type { ApuracaoPonto, IndicadorHeader } from "../types/portal"
-import { conformeToStatus, statusBarColor } from "../utils/conformidade"
+import { pontoResultado, resultadoBarColor } from "../utils/conformidade"
 
 interface IndicatorHistoryProps {
   indicadorSysId: string
+  apuracaoId: string
 }
 
 const PAGE_SIZE = 6
 const MESES = Number(import.meta.env.VITE_HISTORICO_MESES) || 6
 
-export function IndicatorHistory({ indicadorSysId }: IndicatorHistoryProps) {
+export function IndicatorHistory({
+  indicadorSysId,
+  apuracaoId,
+}: IndicatorHistoryProps) {
   const [page, setPage] = useState(0)
-  const [apuracaoSel, setApuracaoSel] = useState<string | null>(null)
+  // Por padrão abre a JANELA a partir da apuração clicada; pode alternar para a
+  // série completa do indicador.
+  const [modo, setModo] = useState<"janela" | "completa">("janela")
+  const [anchor, setAnchor] = useState(apuracaoId)
 
-  const apuracoesQuery = useApuracoes(indicadorSysId)
-  const historicoQuery = useHistoricoApuracao(apuracaoSel, MESES)
+  // Trocou de indicador/apuração na tabela → volta para a janela daquele mês.
+  useEffect(() => {
+    setAnchor(apuracaoId)
+    setModo("janela")
+    setPage(0)
+  }, [apuracaoId])
 
-  // Em modo "janela", mostra o histórico a partir da apuração clicada.
-  const emJanela = !!apuracaoSel
-  const header: IndicadorHeader | undefined = emJanela
-    ? historicoQuery.data?.indicador
-    : apuracoesQuery.data?.indicador
-  const serie: ApuracaoPonto[] = emJanela
-    ? (historicoQuery.data?.result ?? [])
-    : (apuracoesQuery.data?.result ?? [])
+  const emJanela = modo === "janela"
+  const historicoQuery = useHistoricoApuracao(emJanela ? anchor : null, MESES)
+  const apuracoesQuery = useApuracoes(emJanela ? null : indicadorSysId)
 
-  const isLoading = emJanela
-    ? historicoQuery.isLoading
-    : apuracoesQuery.isLoading
-  const isError = apuracoesQuery.isError || historicoQuery.isError
+  const activeQuery = emJanela ? historicoQuery : apuracoesQuery
+  const header: IndicadorHeader | undefined = activeQuery.data?.indicador
+  const serie: ApuracaoPonto[] = Array.isArray(activeQuery.data?.result)
+    ? activeQuery.data.result
+    : []
 
-  if (isError) {
+  if (activeQuery.isError) {
     return (
       <section className="bg-white rounded-lg shadow-sm p-4">
         <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
           <AlertTriangle size={16} className="text-danger mt-0.5 shrink-0" />
           <p className="text-sm text-red-800">
-            {(apuracoesQuery.error ?? historicoQuery.error)?.message ??
-              "Erro ao carregar as apuracoes."}
+            {activeQuery.error?.message ?? "Erro ao carregar as apuracoes."}
           </p>
         </div>
       </section>
     )
   }
 
-  if (isLoading || !header) {
+  if (activeQuery.isLoading || !header) {
     return (
       <section className="bg-white rounded-lg shadow-sm p-4">
         <p className="text-sm text-soft py-6 text-center">
-          Carregando apuracoes…
+          Carregando histórico…
         </p>
       </section>
     )
@@ -70,7 +76,7 @@ export function IndicatorHistory({ indicadorSysId }: IndicatorHistoryProps) {
 
   const metaLinha = Number(header.meta) || serie.at(-1)?.meta || 0
   const totalPages = Math.ceil(serie.length / PAGE_SIZE)
-  // No modo janela a série já é curta; mostra tudo. No modo completo, pagina.
+  // Na janela a série já é curta; mostra tudo. Na completa, pagina.
   const paginatedData = emJanela
     ? serie
     : serie.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
@@ -79,7 +85,10 @@ export function IndicatorHistory({ indicadorSysId }: IndicatorHistoryProps) {
   const yMax = Math.ceil(Math.max(...valores, metaLinha) * 1.2) || 1
 
   function handleBarClick(entry: ApuracaoPonto) {
-    setApuracaoSel(entry.sys_id || entry.number)
+    if (emJanela) return
+    // Na série completa, clicar numa barra reancora a janela naquele mês.
+    setAnchor(entry.sys_id || entry.number)
+    setModo("janela")
   }
 
   return (
@@ -87,18 +96,17 @@ export function IndicatorHistory({ indicadorSysId }: IndicatorHistoryProps) {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-bold text-text-blue">
           {emJanela
-            ? `Historico de Apuracao (ultimos ${MESES} meses)`
-            : "Historico de Apuracao"}
+            ? `Histórico de Apuração (últimos ${MESES} meses)`
+            : "Histórico de Apuração — série completa"}
         </h2>
-        {emJanela && (
-          <button
-            type="button"
-            onClick={() => setApuracaoSel(null)}
-            className="inline-flex items-center gap-1.5 border border-brand-blue text-brand-blue text-xs font-medium rounded-md px-2.5 py-1 hover:bg-brand-blue hover:text-white transition-colors cursor-pointer"
-          >
-            <Undo2 size={14} /> Ver serie completa
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => setModo(emJanela ? "completa" : "janela")}
+          className="inline-flex items-center gap-1.5 border border-brand-blue text-brand-blue text-xs font-medium rounded-md px-2.5 py-1 hover:bg-brand-blue hover:text-white transition-colors cursor-pointer"
+        >
+          <Undo2 size={14} />
+          {emJanela ? "Ver série completa" : `Ver janela (${MESES} meses)`}
+        </button>
       </div>
 
       {/* Info do indicador */}
@@ -194,16 +202,18 @@ export function IndicatorHistory({ indicadorSysId }: IndicatorHistoryProps) {
               dataKey="apurado"
               radius={[4, 4, 0, 0]}
               maxBarSize={50}
-              className="cursor-pointer"
-              onClick={(data) => handleBarClick(data as unknown as ApuracaoPonto)}
+              className={emJanela ? undefined : "cursor-pointer"}
+              onClick={(data) =>
+                handleBarClick(data as unknown as ApuracaoPonto)
+              }
             >
               {paginatedData.map((entry) => {
-                const status = conformeToStatus(entry.conforme)
+                const status = pontoResultado(entry)
                 const destacada = emJanela && entry.selecionada
                 return (
                   <Cell
                     key={entry.sys_id || entry.number}
-                    fill={statusBarColor[status]}
+                    fill={resultadoBarColor[status]}
                     fillOpacity={destacada ? 1 : 0.8}
                     stroke={destacada ? "#1E3A5F" : undefined}
                     strokeWidth={destacada ? 2 : 0}
@@ -222,17 +232,17 @@ export function IndicatorHistory({ indicadorSysId }: IndicatorHistoryProps) {
         </ResponsiveContainer>
         {!emJanela && (
           <p className="text-[11px] text-soft mt-2 text-center">
-            Clique em uma barra para ver o historico dos ultimos {MESES} meses
-            daquele periodo.
+            Clique em uma barra para focar a janela dos últimos {MESES} meses
+            daquele período.
           </p>
         )}
       </div>
 
-      {/* Paginacao (apenas na serie completa) */}
+      {/* Paginacao (apenas na série completa) */}
       {!emJanela && totalPages > 1 && (
         <div className="flex items-center justify-between mt-3 px-2">
           <span className="text-xs text-soft">
-            Pagina {page + 1} de {totalPages}
+            Página {page + 1} de {totalPages}
           </span>
           <div className="flex gap-1">
             <button
