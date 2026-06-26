@@ -1,5 +1,4 @@
-import { AlertTriangle, ChevronLeft, ChevronRight, Undo2 } from "lucide-react"
-import { useEffect, useState } from "react"
+import { AlertTriangle } from "lucide-react"
 import {
   Bar,
   BarChart,
@@ -12,59 +11,32 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { useApuracoes, useHistoricoApuracao } from "../hooks/usePortal"
-import type { ApuracaoPonto, IndicadorHeader } from "../types/portal"
+import { useHistoricoDoRco } from "../hooks/usePortal"
 import { pontoResultado, resultadoBarColor } from "../utils/conformidade"
 
 interface IndicatorHistoryProps {
-  indicadorSysId: string
-  apuracaoId: string
+  rcoSysId: string
 }
 
-const PAGE_SIZE = 6
 const MESES = Number(import.meta.env.VITE_HISTORICO_MESES) || 6
 
-export function IndicatorHistory({
-  indicadorSysId,
-  apuracaoId,
-}: IndicatorHistoryProps) {
-  const [page, setPage] = useState(0)
-  // Por padrão abre a JANELA a partir da apuração clicada; pode alternar para a
-  // série completa do indicador.
-  const [modo, setModo] = useState<"janela" | "completa">("janela")
-  const [anchor, setAnchor] = useState(apuracaoId)
+export function IndicatorHistory({ rcoSysId }: IndicatorHistoryProps) {
+  const { data, isLoading, isError, error } = useHistoricoDoRco(rcoSysId, MESES)
 
-  // Trocou de indicador/apuração na tabela → volta para a janela daquele mês.
-  useEffect(() => {
-    setAnchor(apuracaoId)
-    setModo("janela")
-    setPage(0)
-  }, [apuracaoId])
-
-  const emJanela = modo === "janela"
-  const historicoQuery = useHistoricoApuracao(emJanela ? anchor : null, MESES)
-  const apuracoesQuery = useApuracoes(emJanela ? null : indicadorSysId)
-
-  const activeQuery = emJanela ? historicoQuery : apuracoesQuery
-  const header: IndicadorHeader | undefined = activeQuery.data?.indicador
-  const serie: ApuracaoPonto[] = Array.isArray(activeQuery.data?.result)
-    ? activeQuery.data.result
-    : []
-
-  if (activeQuery.isError) {
+  if (isError) {
     return (
       <section className="bg-white rounded-lg shadow-sm p-4">
         <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
           <AlertTriangle size={16} className="text-danger mt-0.5 shrink-0" />
           <p className="text-sm text-red-800">
-            {activeQuery.error?.message ?? "Erro ao carregar as apuracoes."}
+            {error?.message ?? "Erro ao carregar o histórico."}
           </p>
         </div>
       </section>
     )
   }
 
-  if (activeQuery.isLoading || !header) {
+  if (isLoading || !data?.indicador) {
     return (
       <section className="bg-white rounded-lg shadow-sm p-4">
         <p className="text-sm text-soft py-6 text-center">
@@ -74,39 +46,33 @@ export function IndicatorHistory({
     )
   }
 
-  const metaLinha = Number(header.meta) || serie.at(-1)?.meta || 0
-  const totalPages = Math.ceil(serie.length / PAGE_SIZE)
-  // Na janela a série já é curta; mostra tudo. Na completa, pagina.
-  const paginatedData = emJanela
-    ? serie
-    : serie.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+  const header = data.indicador
+  const rco = data.rco
+  const serie = Array.isArray(data.result) ? data.result : []
 
+  const metaLinha = Number(header.meta) || serie.at(-1)?.meta || 0
   const valores = serie.flatMap((h) => [h.apurado ?? 0, h.meta ?? 0])
   const yMax = Math.ceil(Math.max(...valores, metaLinha) * 1.2) || 1
 
-  function handleBarClick(entry: ApuracaoPonto) {
-    if (emJanela) return
-    // Na série completa, clicar numa barra reancora a janela naquele mês.
-    setAnchor(entry.sys_id || entry.number)
-    setModo("janela")
-  }
+  // Detalhes textuais do RCO (só os preenchidos).
+  const detalhesRco: { label: string; value: string }[] = [
+    { label: "Motivo", value: rco?.motivo ?? "" },
+    { label: "Ações preventivas", value: rco?.acoes_preventivas ?? "" },
+    { label: "Parecer do aprovador", value: rco?.parecer_do_aprovador ?? "" },
+    { label: "Situação", value: rco?.situacao ?? "" },
+    { label: "Reiterações", value: rco?.reiteracoes ?? "" },
+    { label: "Data de resposta", value: rco?.data_de_resposta ?? "" },
+  ].filter((d) => d.value && d.value.trim() !== "")
 
   return (
     <section className="bg-white rounded-lg shadow-sm p-4">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-sm font-bold text-text-blue">
-          {emJanela
-            ? `Histórico de Apuração (últimos ${MESES} meses)`
-            : "Histórico de Apuração — série completa"}
+          Histórico de Apuração (últimos {data.meses ?? MESES} meses)
         </h2>
-        <button
-          type="button"
-          onClick={() => setModo(emJanela ? "completa" : "janela")}
-          className="inline-flex items-center gap-1.5 border border-brand-blue text-brand-blue text-xs font-medium rounded-md px-2.5 py-1 hover:bg-brand-blue hover:text-white transition-colors cursor-pointer"
-        >
-          <Undo2 size={14} />
-          {emJanela ? "Ver série completa" : `Ver janela (${MESES} meses)`}
-        </button>
+        {rco?.id && (
+          <span className="text-xs font-mono text-soft">RCO {rco.id}</span>
+        )}
       </div>
 
       {/* Info do indicador */}
@@ -153,7 +119,7 @@ export function IndicatorHistory({
       <div className="bg-white border border-border rounded-lg p-4">
         <ResponsiveContainer width="100%" height={320}>
           <BarChart
-            data={paginatedData}
+            data={serie}
             margin={{ top: 30, right: 20, left: 20, bottom: 10 }}
           >
             <CartesianGrid
@@ -198,21 +164,13 @@ export function IndicatorHistory({
                 position: "right",
               }}
             />
-            <Bar
-              dataKey="apurado"
-              radius={[4, 4, 0, 0]}
-              maxBarSize={50}
-              className={emJanela ? undefined : "cursor-pointer"}
-              onClick={(data) =>
-                handleBarClick(data as unknown as ApuracaoPonto)
-              }
-            >
-              {paginatedData.map((entry) => {
+            <Bar dataKey="apurado" radius={[4, 4, 0, 0]} maxBarSize={50}>
+              {serie.map((entry) => {
                 const status = pontoResultado(entry)
-                const destacada = emJanela && entry.selecionada
+                const destacada = entry.selecionada
                 return (
                   <Cell
-                    key={entry.sys_id || entry.number}
+                    key={entry.rco_id}
                     fill={resultadoBarColor[status]}
                     fillOpacity={destacada ? 1 : 0.8}
                     stroke={destacada ? "#1E3A5F" : undefined}
@@ -230,37 +188,21 @@ export function IndicatorHistory({
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-        {!emJanela && (
-          <p className="text-[11px] text-soft mt-2 text-center">
-            Clique em uma barra para focar a janela dos últimos {MESES} meses
-            daquele período.
-          </p>
-        )}
       </div>
 
-      {/* Paginacao (apenas na série completa) */}
-      {!emJanela && totalPages > 1 && (
-        <div className="flex items-center justify-between mt-3 px-2">
-          <span className="text-xs text-soft">
-            Página {page + 1} de {totalPages}
-          </span>
-          <div className="flex gap-1">
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
-              className="p-1 rounded hover:bg-neutral disabled:opacity-30 cursor-pointer disabled:cursor-default"
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              disabled={page === totalPages - 1}
-              className="p-1 rounded hover:bg-neutral disabled:opacity-30 cursor-pointer disabled:cursor-default"
-            >
-              <ChevronRight size={16} />
-            </button>
+      {/* Detalhe do RCO selecionado */}
+      {detalhesRco.length > 0 && (
+        <div className="mt-4 bg-neutral rounded-lg p-4">
+          <h3 className="text-sm font-bold text-text-blue mb-3">
+            Detalhe do registro (RCO {rco?.id})
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            {detalhesRco.map((d) => (
+              <div key={d.label}>
+                <span className="text-soft text-xs">{d.label}</span>
+                <p className="text-text-black whitespace-pre-wrap">{d.value}</p>
+              </div>
+            ))}
           </div>
         </div>
       )}

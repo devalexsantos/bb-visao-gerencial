@@ -1,12 +1,9 @@
 import type {
   AnsAreaResponse,
-  AnsPeriodosResponse,
-  AnsServicoResponse,
+  AnsRacsResponse,
   ApiError,
-  ApuracaoHistoricoResponse,
-  ApuracoesResponse,
-  IndicadoresAnsResponse,
-  IndicadoresPeriodoResponse,
+  RacRcosResponse,
+  RcoHistoricoResponse,
 } from "../types/portal";
 
 const BASE_URL = import.meta.env.VITE_SERVICENOW_BASE_URL;
@@ -70,29 +67,12 @@ export const portalApi = {
   ansPorArea: (area: string) =>
     callPortalApi<AnsAreaResponse>({ acao: "ans_area", area }),
 
-  ansPorServico: (servico?: string) =>
-    callPortalApi<AnsServicoResponse>({ acao: "ans_servico", servico }),
+  racsDoAns: (ans: string) =>
+    callPortalApi<AnsRacsResponse>({ acao: "ans_racs", ans }),
 
-  indicadoresDoAns: (ans: string) =>
-    callPortalApi<IndicadoresAnsResponse>({ acao: "indicadores_ans", ans }),
+  rcosDoRac: (rac: string) =>
+    callPortalApi<RacRcosResponse>({ acao: "rac_rcos", rac }),
 
-  ansPeriodos: (ans: string) =>
-    callPortalApi<AnsPeriodosResponse>({ acao: "ans_periodos", ans }),
-
-  indicadoresPorPeriodo: (ans: string, periodo: string) =>
-    callPortalApi<IndicadoresPeriodoResponse>({
-      acao: "indicadores_periodo",
-      ans,
-      periodo,
-    }),
-
-  apuracoes: (indicador: string) =>
-    callPortalApi<ApuracoesResponse>({ acao: "apuracoes", indicador }),
-
-  historicoApuracao: (apuracao: string, meses = 6) =>
-    callPortalApi<ApuracaoHistoricoResponse>({
-      acao: "apuracao_historico",
-      apuracao,
-      meses,
-    }),
+  historicoDoRco: (rco: string, meses = 6) =>
+    callPortalApi<RcoHistoricoResponse>({ acao: "rco_historico", rco, meses }),
 };

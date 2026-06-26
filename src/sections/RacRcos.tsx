@@ -1,43 +1,36 @@
 import { AlertTriangle, Info } from "lucide-react"
 import { HintCard } from "../components/HintCard"
-import { useIndicadoresPorPeriodo } from "../hooks/usePortal"
+import { useRcosDoRac } from "../hooks/usePortal"
 import {
+  normalizeResultado,
   resultadoBadgeClasses,
   resultadoLabels,
-  toResultado,
 } from "../utils/conformidade"
 
-interface IndicadoresPeriodoProps {
-  ansSysId: string
-  periodo: string
+interface RacRcosProps {
+  racSysId: string
   ansNome: string
-  selectedApuracao: string | null
-  onSelectIndicador: (apuracaoNumber: string, indicadorSysId: string) => void
+  selectedRcoSysId: string | null
+  onSelectRco: (rcoSysId: string) => void
 }
 
-export function IndicadoresPeriodo({
-  ansSysId,
-  periodo,
+export function RacRcos({
+  racSysId,
   ansNome,
-  selectedApuracao,
-  onSelectIndicador,
-}: IndicadoresPeriodoProps) {
-  const { data, isLoading, isError, error } = useIndicadoresPorPeriodo(
-    ansSysId,
-    periodo,
-  )
+  selectedRcoSysId,
+  onSelectRco,
+}: RacRcosProps) {
+  const { data, isLoading, isError, error } = useRcosDoRac(racSysId)
 
-  const indicadores = Array.isArray(data?.result) ? data.result : []
-  const periodoLabel = data?.periodo_label ?? periodo
-  const consolidado = toResultado(data?.resultado)
-  const total = data?.total_indicadores ?? indicadores.length
-  const foraMeta = indicadores.filter(
-    (i) => i.resultado === "indicio" || i.resultado === "nao_conformidade",
-  ).length
+  const rcos = Array.isArray(data?.result) ? data.result : []
+  const periodoLabel = data?.periodo_label ?? ""
+  const consolidado = normalizeResultado(data?.resultado)
+  const total = data?.total_indicadores ?? rcos.length
+  const foraMeta =
+    data?.fora_da_meta ??
+    rcos.filter((r) => normalizeResultado(r.resultado) !== "conformidade").length
 
-  const selecionado = indicadores.find(
-    (i) => i.apuracao_number === selectedApuracao,
-  )
+  const selecionado = rcos.find((r) => r.sys_id === selectedRcoSysId)
 
   return (
     <section className="bg-white rounded-lg shadow-sm p-4">
@@ -53,7 +46,7 @@ export function IndicadoresPeriodo({
             <h2 className="text-lg font-bold text-text-blue">
               Indicadores do período: {periodoLabel}
             </h2>
-            {!isLoading && !isError && indicadores.length > 0 && (
+            {!isLoading && !isError && rcos.length > 0 && (
               <span
                 className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${resultadoBadgeClasses[consolidado]}`}
               >
@@ -61,7 +54,7 @@ export function IndicadoresPeriodo({
               </span>
             )}
           </div>
-          {!isLoading && !isError && indicadores.length > 0 && (
+          {!isLoading && !isError && rcos.length > 0 && (
             <p className="text-xs text-soft -mt-1">
               {foraMeta} de {total} indicadores fora da meta
             </p>
@@ -82,7 +75,7 @@ export function IndicadoresPeriodo({
             </div>
           )}
 
-          {!isLoading && !isError && indicadores.length === 0 && (
+          {!isLoading && !isError && rcos.length === 0 && (
             <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
               <Info size={16} className="text-brand-blue mt-0.5 shrink-0" />
               <p className="text-sm text-text-blue">
@@ -91,11 +84,12 @@ export function IndicadoresPeriodo({
             </div>
           )}
 
-          {!isLoading && !isError && indicadores.length > 0 && (
+          {!isLoading && !isError && rcos.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-text-zinc text-white">
+                    <th className="text-left px-3 py-2">RCO</th>
                     <th className="text-left px-3 py-2">Nome</th>
                     <th className="text-left px-3 py-2">Tipo</th>
                     <th className="text-left px-3 py-2">Direcao</th>
@@ -105,38 +99,35 @@ export function IndicadoresPeriodo({
                   </tr>
                 </thead>
                 <tbody>
-                  {indicadores.map((ind) => {
-                    const status = toResultado(ind.resultado)
-                    const temApuracao = !!ind.apuracao_number
+                  {rcos.map((rco) => {
+                    const status = normalizeResultado(rco.resultado)
                     const isSelected =
-                      ind.apuracao_number === selectedApuracao &&
-                      selectedApuracao !== null
+                      rco.sys_id === selectedRcoSysId &&
+                      selectedRcoSysId !== null
                     return (
                       <tr
-                        key={ind.sys_id}
-                        onClick={() =>
-                          temApuracao &&
-                          onSelectIndicador(
-                            ind.apuracao_number as string,
-                            ind.sys_id,
-                          )
-                        }
+                        key={rco.sys_id}
+                        onClick={() => onSelectRco(rco.sys_id)}
                         className={[
-                          "border-b border-border transition-colors",
-                          temApuracao
-                            ? "cursor-pointer"
-                            : "cursor-default opacity-60",
+                          "cursor-pointer border-b border-border transition-colors",
                           isSelected ? "bg-secondary" : "hover:bg-neutral",
                         ].join(" ")}
                       >
-                        <td className="px-3 py-2">{ind.nome_indicador}</td>
-                        <td className="px-3 py-2 text-soft">{ind.tipo}</td>
-                        <td className="px-3 py-2 text-soft">{ind.direcao}</td>
-                        <td className="px-3 py-2 text-right font-mono">
-                          {ind.meta ?? "—"}
+                        <td className="px-3 py-2 font-mono text-xs text-brand-blue">
+                          {rco.rco_id}
+                        </td>
+                        <td className="px-3 py-2">{rco.nome_indicador ?? "—"}</td>
+                        <td className="px-3 py-2 text-soft">
+                          {rco.tipo ?? "—"}
+                        </td>
+                        <td className="px-3 py-2 text-soft">
+                          {rco.direcao ?? "—"}
                         </td>
                         <td className="px-3 py-2 text-right font-mono">
-                          {ind.apurado ?? "—"}
+                          {rco.meta ?? "—"}
+                        </td>
+                        <td className="px-3 py-2 text-right font-mono">
+                          {rco.apurado ?? "—"}
                         </td>
                         <td className="px-3 py-2 text-center">
                           <span
@@ -153,17 +144,15 @@ export function IndicadoresPeriodo({
             </div>
           )}
 
-          {/* Justificativa do indicador selecionado */}
-          {selecionado?.justificativa && (
+          {/* Motivo do RCO selecionado */}
+          {selecionado?.motivo && (
             <div className="mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2">
               <AlertTriangle size={16} className="text-amber-600 mt-0.5 shrink-0" />
               <div>
                 <p className="text-xs font-bold text-amber-800 mb-1">
-                  Justificativa
+                  Motivo ({selecionado.rco_id})
                 </p>
-                <p className="text-sm text-amber-900">
-                  {selecionado.justificativa}
-                </p>
+                <p className="text-sm text-amber-900">{selecionado.motivo}</p>
               </div>
             </div>
           )}
@@ -177,14 +166,14 @@ export function IndicadoresPeriodo({
                 1
               </span>
               <span>
-                Selecione um indicador para ver o histórico de apuração.
+                Selecione um indicador (RCO) para ver o histórico de apuração.
               </span>
             </li>
             <li className="flex gap-2">
               <span className="shrink-0 w-5 h-5 rounded-full bg-brand-blue text-white text-[11px] font-bold flex items-center justify-center">
                 2
               </span>
-              <span>Analise o gráfico e os detalhes de cada apuração.</span>
+              <span>Analise o gráfico e os detalhes do registro.</span>
             </li>
           </ol>
         </HintCard>

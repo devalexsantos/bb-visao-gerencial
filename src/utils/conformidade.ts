@@ -1,33 +1,37 @@
-import type { ResultadoPeriodo } from "../types/portal"
+import type { ResultadoRco } from "../types/portal"
 
-// O backend agora entrega o `resultado` já consolidado (tri-estado + sem dado),
-// tanto no acompanhamento mensal (ans_periodos) quanto em cada ponto das séries
-// (apuracoes / apuracao_historico). O frontend só mapeia para rótulo e cor.
+// Na v2 o `resultado` vem pronto do backend, em dois formatos:
+//  - RCO: token de máquina ("conformidade" | "indicio" | "nao_conformidade")
+//  - RAC: texto de display ("Conformidade" | "Não Conformidade" | "Indício")
+// Esta função normaliza ambos para o status canônico usado nas cores/rótulos.
+export type ResultadoStatus =
+  | "conformidade"
+  | "indicio"
+  | "nao_conformidade"
+  | "sem_dado"
 
-export function toResultado(value: unknown): ResultadoPeriodo {
-  if (
-    value === "conformidade" ||
-    value === "indicio" ||
-    value === "nao_conformidade"
-  ) {
-    return value
-  }
+export function normalizeResultado(value: unknown): ResultadoStatus {
+  if (typeof value !== "string") return "sem_dado"
+  const v = value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .trim()
+  if (!v) return "sem_dado"
+  if (v.includes("nao") && v.includes("conform")) return "nao_conformidade"
+  if (v.includes("indic")) return "indicio"
+  if (v.includes("conform")) return "conformidade"
   return "sem_dado"
 }
 
-// Quando um ponto da série não trouxer `resultado` (compatibilidade), deriva do
-// campo booleano `conforme`.
+// Ponto do gráfico de histórico: o resultado já vem por ponto na v2.
 export function pontoResultado(p: {
-  resultado?: ResultadoPeriodo | null
-  conforme?: boolean | null
-}): ResultadoPeriodo {
-  if (p.resultado) return toResultado(p.resultado)
-  if (p.conforme === true) return "conformidade"
-  if (p.conforme === false) return "nao_conformidade"
-  return "sem_dado"
+  resultado?: ResultadoRco | null
+}): ResultadoStatus {
+  return normalizeResultado(p.resultado)
 }
 
-export const resultadoLabels: Record<ResultadoPeriodo, string> = {
+export const resultadoLabels: Record<ResultadoStatus, string> = {
   conformidade: "Conformidade",
   indicio: "Indicio",
   nao_conformidade: "Nao Conformidade",
@@ -35,7 +39,7 @@ export const resultadoLabels: Record<ResultadoPeriodo, string> = {
 }
 
 // Classes do badge (reaproveitam os tokens definidos em index.css).
-export const resultadoBadgeClasses: Record<ResultadoPeriodo, string> = {
+export const resultadoBadgeClasses: Record<ResultadoStatus, string> = {
   conformidade: "bg-success text-white",
   indicio: "bg-warning text-text-black",
   nao_conformidade: "bg-danger text-white",
@@ -43,7 +47,7 @@ export const resultadoBadgeClasses: Record<ResultadoPeriodo, string> = {
 }
 
 // Cor da barra do gráfico por resultado.
-export const resultadoBarColor: Record<ResultadoPeriodo, string> = {
+export const resultadoBarColor: Record<ResultadoStatus, string> = {
   conformidade: "#4ADE80",
   indicio: "#FACC15",
   nao_conformidade: "#F87171",

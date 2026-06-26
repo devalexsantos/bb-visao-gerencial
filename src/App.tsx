@@ -3,22 +3,19 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { Layout } from "./components/Layout"
 import { useAnsPorArea } from "./hooks/usePortal"
 import { AnsKpiCards } from "./sections/AnsKpiCards"
-import { AnsPeriodos } from "./sections/AnsPeriodos"
+import { AnsRacs } from "./sections/AnsRacs"
 import { AreaFilter } from "./sections/AreaFilter"
-import { IndicadoresPeriodo } from "./sections/IndicadoresPeriodo"
 import { IndicatorHistory } from "./sections/IndicatorHistory"
+import { RacRcos } from "./sections/RacRcos"
 
 export function App() {
   const [selectedArea, setSelectedArea] = useState<string | null>(null)
   const [selectedAnsSysId, setSelectedAnsSysId] = useState<string | null>(null)
-  const [selectedPeriodo, setSelectedPeriodo] = useState<string | null>(null)
-  const [selectedApuracao, setSelectedApuracao] = useState<string | null>(null)
-  const [selectedIndicadorSysId, setSelectedIndicadorSysId] = useState<
-    string | null
-  >(null)
+  const [selectedRacSysId, setSelectedRacSysId] = useState<string | null>(null)
+  const [selectedRcoSysId, setSelectedRcoSysId] = useState<string | null>(null)
 
-  const periodosRef = useRef<HTMLDivElement>(null)
-  const indicadoresRef = useRef<HTMLDivElement>(null)
+  const racsRef = useRef<HTMLDivElement>(null)
+  const rcosRef = useRef<HTMLDivElement>(null)
   const historyRef = useRef<HTMLDivElement>(null)
 
   const scrollTo = useCallback((ref: React.RefObject<HTMLDivElement | null>) => {
@@ -30,44 +27,37 @@ export function App() {
   const handleAreaChange = useCallback((area: string) => {
     setSelectedArea(area)
     setSelectedAnsSysId(null)
-    setSelectedPeriodo(null)
-    setSelectedApuracao(null)
-    setSelectedIndicadorSysId(null)
+    setSelectedRacSysId(null)
+    setSelectedRcoSysId(null)
   }, [])
 
   const handleAnsSelect = useCallback((sysId: string) => {
     setSelectedAnsSysId(sysId)
-    setSelectedPeriodo(null)
-    setSelectedApuracao(null)
-    setSelectedIndicadorSysId(null)
+    setSelectedRacSysId(null)
+    setSelectedRcoSysId(null)
   }, [])
 
-  const handlePeriodoSelect = useCallback((periodo: string) => {
-    setSelectedPeriodo(periodo)
-    setSelectedApuracao(null)
-    setSelectedIndicadorSysId(null)
+  const handleRacSelect = useCallback((sysId: string) => {
+    setSelectedRacSysId(sysId)
+    setSelectedRcoSysId(null)
   }, [])
 
-  const handleIndicadorSelect = useCallback(
-    (apuracaoNumber: string, indicadorSysId: string) => {
-      setSelectedApuracao(apuracaoNumber)
-      setSelectedIndicadorSysId(indicadorSysId)
-    },
-    [],
-  )
+  const handleRcoSelect = useCallback((sysId: string) => {
+    setSelectedRcoSysId(sysId)
+  }, [])
 
   // Scroll effects
   useEffect(() => {
-    if (selectedAnsSysId) scrollTo(periodosRef)
+    if (selectedAnsSysId) scrollTo(racsRef)
   }, [selectedAnsSysId, scrollTo])
 
   useEffect(() => {
-    if (selectedPeriodo) scrollTo(indicadoresRef)
-  }, [selectedPeriodo, scrollTo])
+    if (selectedRacSysId) scrollTo(rcosRef)
+  }, [selectedRacSysId, scrollTo])
 
   useEffect(() => {
-    if (selectedApuracao) scrollTo(historyRef)
-  }, [selectedApuracao, scrollTo])
+    if (selectedRcoSysId) scrollTo(historyRef)
+  }, [selectedRcoSysId, scrollTo])
 
   // Dados da API
   const ansQuery = useAnsPorArea(selectedArea)
@@ -132,33 +122,29 @@ export function App() {
         )}
 
         {selectedAns && (
-          <div ref={periodosRef}>
-            <AnsPeriodos
+          <div ref={racsRef}>
+            <AnsRacs
               ans={selectedAns}
-              selectedPeriodo={selectedPeriodo}
-              onSelectPeriodo={handlePeriodoSelect}
+              selectedRacSysId={selectedRacSysId}
+              onSelectRac={handleRacSelect}
             />
           </div>
         )}
 
-        {selectedAns && selectedPeriodo && (
-          <div ref={indicadoresRef}>
-            <IndicadoresPeriodo
-              ansSysId={selectedAns.sys_id}
-              periodo={selectedPeriodo}
+        {selectedRacSysId && (
+          <div ref={rcosRef}>
+            <RacRcos
+              racSysId={selectedRacSysId}
               ansNome={ansNome}
-              selectedApuracao={selectedApuracao}
-              onSelectIndicador={handleIndicadorSelect}
+              selectedRcoSysId={selectedRcoSysId}
+              onSelectRco={handleRcoSelect}
             />
           </div>
         )}
 
-        {selectedApuracao && selectedIndicadorSysId && (
+        {selectedRcoSysId && (
           <div ref={historyRef}>
-            <IndicatorHistory
-              indicadorSysId={selectedIndicadorSysId}
-              apuracaoId={selectedApuracao}
-            />
+            <IndicatorHistory rcoSysId={selectedRcoSysId} />
           </div>
         )}
       </div>

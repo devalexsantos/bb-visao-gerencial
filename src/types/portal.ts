@@ -1,11 +1,5 @@
-// Tipos da API do Portal de Disponibilidade (Scripted REST do ServiceNow).
-// Espelham a seção 6 da doc-endpoint-ans.md.
-
-// ---------- Envelope genérico ----------
-export interface ApiEnvelope<T> {
-  count: number
-  result: T[]
-}
+// Tipos da API v2 do Portal de Disponibilidade (Scripted REST do ServiceNow).
+// Modelo: ANS → RAC (mês) → RCO (indicador/mês). Espelham break-change-visao-cliente.md.
 
 // ---------- Erro ----------
 export interface ApiError {
@@ -13,67 +7,115 @@ export interface ApiError {
   detail?: string
 }
 
-// ---------- Ação: ans_area / ans_servico ----------
+// ---------- Resultado (token de máquina ou "sem dado") ----------
+export type ResultadoRco =
+  | "conformidade"
+  | "indicio"
+  | "nao_conformidade"
+  | "sem_dado"
+  | string
+
+// ---------- Ação: ans_area (cards) ----------
 export interface Ans {
-  number: string
   numero_ans: string
   apelido: string
   objetivo?: string
   servico: string
   ofertas: string[]
-  oferta_fixo: string
-  indicadores: string // sys_ids vinculados (lista separada por vírgula)
+  oferta_fixo?: string
   nome_uor: string
   cd_uor?: string
-  status: string
-  state: string
-  active: string // "true" | "false" | "0" | "1"
+  status?: string
+  state?: string
+  active?: string
   opened_at?: string
   closed_at?: string
-  // % de conformidade já calculado pelo backend (ans_area).
-  conformidade?: number | null
-  conformidade_conformes?: number
-  conformidade_total?: number
+  // % de conformidade já calculado pelo backend (a partir dos RCOs do ANS).
+  conformidade: number | null
+  conformidade_conformes: number
+  conformidade_total: number
   sys_id: string
-  url: string
+  url?: string
 }
 
-export interface AnsAreaResponse extends ApiEnvelope<Ans> {
+export interface AnsAreaResponse {
+  count: number
   area_filtro: string
+  result: Ans[]
 }
 
-export interface AnsServicoResponse extends ApiEnvelope<Ans> {
-  servico_filtro: string | null
-  ofertas: string[] // união consolidada das ofertas
-}
-
-// ---------- Ação: indicadores_ans ----------
-export interface IndicadorDoAns {
-  number: string
-  nome_indicador: string
-  complemento_do_nome: string
-  tipo: string
-  natureza: string
-  direcao: string
-  unidade_de_medida: string
-  periodicidade: string
-  nivel_ofertado: string // = Meta
-  metodologia_calculo: string
+// ---------- Ação: ans_racs (acompanhamento mensal do ANS) ----------
+export interface AnsPanel {
+  numero_ans: string
+  apelido: string
   servico: string
-  oferta_de_servico: string
-  status: string
+  ofertas: string[]
+  nome_uor: string
+  opened_at?: string
+  closed_at?: string
   sys_id: string
-  url: string
 }
 
-export interface IndicadoresAnsResponse extends ApiEnvelope<IndicadorDoAns> {
+export interface RacRow {
+  number: string // RAC...
+  periodo: string // "2026/05"
+  periodo_date: string // "2026-05-01"
+  periodo_label: string // "Mai/2026"
+  resultado: string // texto do RAC (mapear cor no front)
+  resultado_code: string // código bruto
+  data_de_abertura?: string
+  data_de_conclusao?: string
+  status?: string
+  state?: string
+  total_indicadores: number
+  fora_da_meta: number
+  sys_id: string
+}
+
+export interface AnsRacsResponse {
+  count: number
   ans_filtro: string
   ans_number: string
-  vinculo_indicadores?: string
-  aviso?: string // presente quando count = 0 por falta de vínculo
+  ans: AnsPanel
+  result: RacRow[]
+  aviso?: string
 }
 
-// ---------- Cabeçalho do indicador (apuracoes / apuracao_historico) ----------
+// ---------- Ação: rac_rcos (indicadores/RCOs de um mês) ----------
+export interface RcoIndicadorRow {
+  rco_id: string // RCO...
+  rco_number: string // TASK...
+  indicador_sys_id: string
+  indicador_number: string | null
+  nome_indicador: string | null
+  tipo: string | null
+  direcao: string | null
+  meta: number | null
+  unidade_de_medida: string | null
+  periodicidade: string | null
+  apurado: number | null
+  resultado: ResultadoRco
+  motivo: string
+  situacao?: string
+  periodo: string
+  periodo_label: string
+  sys_id: string // sys_id do RCO (usar p/ rco_historico)
+}
+
+export interface RacRcosResponse {
+  count: number
+  rac_filtro: string
+  rac_number: string
+  periodo: string
+  periodo_label: string
+  resultado: string // consolidado do mês (texto, do RAC)
+  total_indicadores: number
+  fora_da_meta: number
+  result: RcoIndicadorRow[]
+  aviso?: string
+}
+
+// ---------- Ação: rco_historico (detalhe do indicador + RCO + histórico) ----------
 export interface IndicadorHeader {
   sys_id: string
   number: string
@@ -81,109 +123,46 @@ export interface IndicadorHeader {
   tipo: string
   servico: string
   oferta_de_servico: string
-  meta: string // string (vem de nivel_ofertado)
+  meta: string
   direcao: string
   periodicidade: string
   unidade_de_medida: string
 }
 
-// ---------- Resultado consolidado (tri-estado + sem dado) ----------
-export type ResultadoPeriodo =
-  | "conformidade"
-  | "indicio"
-  | "nao_conformidade"
-  | "sem_dado"
+export interface RcoDetalhe {
+  id: string
+  number?: string
+  apurado: number | null
+  resultado: ResultadoRco
+  periodo?: string
+  periodo_label: string
+  motivo: string
+  acoes_preventivas: string
+  parecer_do_aprovador: string
+  data_de_resposta?: string
+  situacao?: string
+  reiteracoes?: string
+  sys_id: string
+}
 
-// ---------- Ponto da série (gráfico) ----------
-export interface ApuracaoPonto {
-  number: string // RAP...
-  periodo: string // "2025-01-01"
-  periodo_label: string // "Jan/2025"
-  periodo_mascara: string // "Janeiro"
-  ano: string
+export interface HistoricoPonto {
+  rco_id: string
+  periodo?: string
+  periodo_date?: string
+  periodo_label: string
   apurado: number | null
   meta: number | null
-  conforme: boolean | null
-  resultado?: ResultadoPeriodo // tri-estado já calculado pelo backend
-  unidade_de_medida: string
-  justificativa: string
-  versao: string
-  selecionada?: boolean // só em apuracao_historico
-  sys_id: string
+  resultado: ResultadoRco
+  selecionada: boolean
+  sys_id?: string
 }
 
-// ---------- Ação: ans_periodos (acompanhamento mensal do ANS) ----------
-export interface AnsHeader {
-  numero_ans: string
-  apelido: string
-  servico: string
-  ofertas: string[]
-  nome_uor: string
-  opened_at?: string
-  closed_at?: string
-  sys_id: string
-}
-
-export interface PeriodoResultado {
-  periodo: string // "2025-01-01"
-  periodo_label: string // "Jan/2025"
-  periodo_mascara: string // "Janeiro"
-  ano: string
-  resultado: ResultadoPeriodo
-  total_indicadores: number
-  conformidade: number
-  indicio: number
-  nao_conformidade: number
-}
-
-export interface AnsPeriodosResponse {
+export interface RcoHistoricoResponse {
   count: number
-  ans_filtro: string
-  ans_number: string
-  ans: AnsHeader
-  result: PeriodoResultado[]
-  aviso?: string // presente quando o ANS não tem indicadores vinculados
-}
-
-// ---------- Ação: indicadores_periodo (indicadores de um ANS num mês) ----------
-export interface IndicadorDoPeriodo {
-  sys_id: string
-  number: string
-  nome_indicador: string
-  tipo: string
-  direcao: string // "ascendente" | "descendente" | "bidirecional"
-  unidade_de_medida: string
-  meta: number | null
-  apurado: number | null
-  resultado: ResultadoPeriodo
-  justificativa: string
-  apuracao_sys_id: string | null
-  apuracao_number: string | null
-}
-
-export interface IndicadoresPeriodoResponse {
-  count: number
-  ans_filtro: string
-  ans_number: string
-  periodo: string // "2025-01-01"
-  periodo_label: string // "Jan/2025"
-  ano: string
-  resultado: ResultadoPeriodo // consolidado do mês
-  total_indicadores: number
-  result: IndicadorDoPeriodo[]
-  aviso?: string
-}
-
-// ---------- Ação: apuracoes ----------
-export interface ApuracoesResponse extends ApiEnvelope<ApuracaoPonto> {
-  indicador_filtro: string
-  indicador: IndicadorHeader
-}
-
-// ---------- Ação: apuracao_historico ----------
-export interface ApuracaoHistoricoResponse extends ApiEnvelope<ApuracaoPonto> {
-  apuracao_base: string
+  rco_base: string
   periodo_base: string
   meses: number
   indicador: IndicadorHeader
+  rco: RcoDetalhe
+  result: HistoricoPonto[]
 }

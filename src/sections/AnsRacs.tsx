@@ -7,19 +7,19 @@ import {
 } from "lucide-react"
 import { useState } from "react"
 import { HintCard } from "../components/HintCard"
-import { useAnsPeriodos } from "../hooks/usePortal"
+import { useRacsDoAns } from "../hooks/usePortal"
 import type { Ans } from "../types/portal"
 import {
+  normalizeResultado,
   resultadoBadgeClasses,
   resultadoLabels,
-  toResultado,
 } from "../utils/conformidade"
 import { toStringArray } from "../utils/normalize"
 
-interface AnsPeriodosProps {
+interface AnsRacsProps {
   ans: Ans
-  selectedPeriodo: string | null
-  onSelectPeriodo: (periodo: string) => void
+  selectedRacSysId: string | null
+  onSelectRac: (racSysId: string) => void
 }
 
 const PAGE_SIZE = 6
@@ -31,21 +31,17 @@ function formatVigencia(ans: Ans): string | null {
   return `${inicio} a ${fim}`
 }
 
-export function AnsPeriodos({
-  ans,
-  selectedPeriodo,
-  onSelectPeriodo,
-}: AnsPeriodosProps) {
+export function AnsRacs({ ans, selectedRacSysId, onSelectRac }: AnsRacsProps) {
   const [page, setPage] = useState(0)
-  const { data, isLoading, isError, error } = useAnsPeriodos(ans.sys_id)
+  const { data, isLoading, isError, error } = useRacsDoAns(ans.sys_id)
 
   const titulo = ans.apelido?.trim() || ans.servico
   const vigencia = formatVigencia(ans)
   const ofertas = toStringArray(ans.ofertas)
 
-  const periodos = Array.isArray(data?.result) ? data.result : []
-  const totalPages = Math.ceil(periodos.length / PAGE_SIZE)
-  const paginated = periodos.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
+  const racs = Array.isArray(data?.result) ? data.result : []
+  const totalPages = Math.ceil(racs.length / PAGE_SIZE)
+  const paginated = racs.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE)
 
   return (
     <section className="bg-white rounded-lg shadow-sm p-4">
@@ -54,14 +50,14 @@ export function AnsPeriodos({
           Acompanhamento do ANS
         </h2>
         <p className="text-xs text-soft mt-0.5">
-          Resultado consolidado de cada período (pior caso entre os indicadores).
+          Resultado mensal (RAC) do ANS, do mês mais recente para o mais antigo.
         </p>
       </div>
 
       <div className="bg-blue-50 border border-blue-100 text-text-blue text-xs rounded-md px-3 py-2 mb-3 flex items-center gap-2">
         <Info size={14} className="text-brand-blue shrink-0" />
-        Cada linha mostra o resultado geral do período. Selecione um indicador
-        abaixo para ver o histórico detalhado.
+        Cada linha é um RAC (mês). Clique em "Visualizar" para ver os indicadores
+        (RCOs) daquele período.
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -101,11 +97,11 @@ export function AnsPeriodos({
           </div>
         </div>
 
-        {/* Tabela de períodos */}
+        {/* Tabela de RACs (meses) */}
         <div className="lg:col-span-2">
           {isLoading && (
             <p className="text-sm text-soft py-6 text-center">
-              Carregando períodos…
+              Carregando acompanhamento…
             </p>
           )}
 
@@ -113,21 +109,21 @@ export function AnsPeriodos({
             <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
               <AlertTriangle size={16} className="text-danger mt-0.5 shrink-0" />
               <p className="text-sm text-red-800">
-                {error?.message ?? "Erro ao carregar os períodos."}
+                {error?.message ?? "Erro ao carregar os RACs."}
               </p>
             </div>
           )}
 
-          {!isLoading && !isError && periodos.length === 0 && (
+          {!isLoading && !isError && racs.length === 0 && (
             <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
               <Info size={16} className="text-brand-blue mt-0.5 shrink-0" />
               <p className="text-sm text-text-blue">
-                {data?.aviso ?? "Nenhum período apurado para este ANS."}
+                {data?.aviso ?? "Nenhum acompanhamento (RAC) para este ANS."}
               </p>
             </div>
           )}
 
-          {!isLoading && !isError && periodos.length > 0 && (
+          {!isLoading && !isError && racs.length > 0 && (
             <>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
@@ -142,21 +138,20 @@ export function AnsPeriodos({
                     </tr>
                   </thead>
                   <tbody>
-                    {paginated.map((p) => {
-                      const status = toResultado(p.resultado)
-                      const foraMeta = p.indicio + p.nao_conformidade
-                      const isSelected = p.periodo === selectedPeriodo
+                    {paginated.map((rac) => {
+                      const status = normalizeResultado(rac.resultado)
+                      const isSelected = rac.sys_id === selectedRacSysId
                       return (
                         <tr
-                          key={p.periodo}
-                          onClick={() => onSelectPeriodo(p.periodo)}
+                          key={rac.sys_id}
+                          onClick={() => onSelectRac(rac.sys_id)}
                           className={[
                             "cursor-pointer border-b border-border transition-colors",
                             isSelected ? "bg-secondary" : "hover:bg-neutral",
                           ].join(" ")}
                         >
                           <td className="px-4 py-2 font-medium">
-                            {p.periodo_label}
+                            {rac.periodo_label}
                           </td>
                           <td className="px-4 py-2">
                             <span
@@ -166,14 +161,15 @@ export function AnsPeriodos({
                             </span>
                           </td>
                           <td className="px-4 py-2 text-soft text-xs">
-                            {foraMeta} de {p.total_indicadores} fora da meta
+                            {rac.fora_da_meta} de {rac.total_indicadores} fora da
+                            meta
                           </td>
                           <td className="px-4 py-2 text-right whitespace-nowrap">
                             <button
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation()
-                                onSelectPeriodo(p.periodo)
+                                onSelectRac(rac.sys_id)
                               }}
                               className="inline-flex items-center gap-1.5 border border-brand-blue text-brand-blue text-xs font-medium rounded-md px-2.5 py-1 hover:bg-brand-blue hover:text-white transition-colors cursor-pointer"
                             >
@@ -220,8 +216,8 @@ export function AnsPeriodos({
 
         {/* Card lateral de Dica */}
         <HintCard variant="dica" title="Dica">
-          Clique em "Visualizar" num período para ver os indicadores daquele mês
-          e, em seguida, em um indicador para abrir o histórico de apuração.
+          Clique em "Visualizar" num período para ver os indicadores (RCOs)
+          daquele mês e, em seguida, em um indicador para abrir o histórico.
         </HintCard>
       </div>
     </section>

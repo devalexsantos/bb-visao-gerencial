@@ -8,41 +8,23 @@ export const useAnsPorArea = (area: string | null) =>
     enabled: !!area,
   })
 
-export const useIndicadoresDoAns = (ansSysId: string | null) =>
+export const useRacsDoAns = (ansSysId: string | null) =>
   useQuery({
-    queryKey: ["indicadores_ans", ansSysId],
-    queryFn: () => portalApi.indicadoresDoAns(ansSysId as string),
+    queryKey: ["ans_racs", ansSysId],
+    queryFn: () => portalApi.racsDoAns(ansSysId as string),
     enabled: !!ansSysId,
   })
 
-export const useAnsPeriodos = (ansSysId: string | null) =>
+export const useRcosDoRac = (racSysId: string | null) =>
   useQuery({
-    queryKey: ["ans_periodos", ansSysId],
-    queryFn: () => portalApi.ansPeriodos(ansSysId as string),
-    enabled: !!ansSysId,
+    queryKey: ["rac_rcos", racSysId],
+    queryFn: () => portalApi.rcosDoRac(racSysId as string),
+    enabled: !!racSysId,
   })
 
-export const useIndicadoresPorPeriodo = (
-  ansSysId: string | null,
-  periodo: string | null,
-) =>
+export const useHistoricoDoRco = (rcoId: string | null, meses = 6) =>
   useQuery({
-    queryKey: ["indicadores_periodo", ansSysId, periodo],
-    queryFn: () =>
-      portalApi.indicadoresPorPeriodo(ansSysId as string, periodo as string),
-    enabled: !!ansSysId && !!periodo,
-  })
-
-export const useApuracoes = (indicadorSysId: string | null) =>
-  useQuery({
-    queryKey: ["apuracoes", indicadorSysId],
-    queryFn: () => portalApi.apuracoes(indicadorSysId as string),
-    enabled: !!indicadorSysId,
-  })
-
-export const useHistoricoApuracao = (apuracaoId: string | null, meses = 6) =>
-  useQuery({
-    queryKey: ["apuracao_historico", apuracaoId, meses],
-    queryFn: () => portalApi.historicoApuracao(apuracaoId as string, meses),
-    enabled: !!apuracaoId,
+    queryKey: ["rco_historico", rcoId, meses],
+    queryFn: () => portalApi.historicoDoRco(rcoId as string, meses),
+    enabled: !!rcoId,
   })
