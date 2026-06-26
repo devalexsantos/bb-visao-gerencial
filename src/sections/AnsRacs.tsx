@@ -133,7 +133,7 @@ export function AnsRacs({ ans, selectedRacSysId, onSelectRac }: AnsRacsProps) {
                         Período
                       </th>
                       <th className="text-left px-4 py-2">Resultado</th>
-                      <th className="text-left px-4 py-2">Indicadores</th>
+                      <th className="text-left px-4 py-2">Qtd. Indicadores</th>
                       <th className="px-4 py-2 rounded-tr-lg w-px" />
                     </tr>
                   </thead>
@@ -161,8 +161,7 @@ export function AnsRacs({ ans, selectedRacSysId, onSelectRac }: AnsRacsProps) {
                             </span>
                           </td>
                           <td className="px-4 py-2 text-soft text-xs">
-                            {rac.fora_da_meta} de {rac.total_indicadores} fora da
-                            meta
+                            {String(rac.total_indicadores).padStart(2, "0")}
                           </td>
                           <td className="px-4 py-2 text-right whitespace-nowrap">
                             <button
