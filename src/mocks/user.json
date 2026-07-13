@@ -1,0 +1,325 @@
+{
+    "roles": [
+        "id=athgdisp,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=gawpp001,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=2904B3F0,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=gsv00004,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=MGW7,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=2757493D,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=mwgaaa4,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=cgna0001,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=D1396D66,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=athdispa,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=apmp0202,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=AAA4,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=psnds,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almfdt99,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=apmp0302,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=athdispu,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=sttcolab,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=idtuser,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=2797433A,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=DRL1,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=gmcus000,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=arsa0025,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=aicread,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=vpn25,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almfhanv,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almfet99,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=ibb999,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almfdhps,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=TDMM,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=F3650BAA,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=gmcus001,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=igalxamt,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=BCB2FD46,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almfcpmc,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=igalxusr,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almfcdeb,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=ST46,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almplto,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=apmp0402,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almoc000,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=niaplt13,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=ibbtdmt,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=pim00100,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=antusr,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almfcefn,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almfdath,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=CE8C0723,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=erwwpusr,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=arsa0037,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net",
+        "id=almfcorp,ou=group,o=bb,ou=services,dc=opensso,dc=java,dc=net"
+    ],
+    "attributes": [
+        {
+            "values": [
+                "rO0ABXNyABFqYXZhLnV0aWwuSGFzaE1hcAUH2sHDFmDRAwACRgAKbG9hZEZhY3RvckkACXRocmVzaG9sZHhwP0AAAAAAAAx3CAAAABAAAAAHdAAUdGlja2V0VmFsaWRhZGVTZXNzYW91cgACW0Ks8xf4BghU4AIAAHhwAAAABGkpaBZ0ABV2ZXJzYW9Ub2tlbkFzc2luYXR1cmF1cQB+AAMAAAAC8PF0AAt0b2tlblNlc3Nhb3VxAH4AAwAAACDFhHb1gesCWjJj3K6YPH2vFrz3An8rVyHeaNV7RhVP0nQAB3VzdWFyaW91cQB+AAMAAAAIQzEzMjg1NzZ0AAZ2ZXJzYW90AAExdAAddGltZXN0YW1wVGlja2V0VmFsaWRhZGVTZXNzYW9zcgAOamF2YS5sYW5nLkxvbmc7i+SQzI8j3wIAAUoABXZhbHVleHIAEGphdmEubGFuZy5OdW1iZXKGrJUdC5TgiwIAAHhwAAABje+4W2x0AAZjaGF2ZXN1cQB+AAMAAAAwm4gwhvEYtNhf7ppu0r4ufATprU1PsCQY13L23AfDLaGtU6/oVx5/gNYfgUKb8qrSeA=="
+            ],
+            "name": "sessaoIIB"
+        },
+        {
+            "values": [
+                "0"
+            ],
+            "name": "responsabilidadeFuncional"
+        },
+        {
+            "values": [
+                "5"
+            ],
+            "name": "grupamento"
+        },
+        {
+            "values": [
+                "0"
+            ],
+            "name": "codigoComissao"
+        },
+        {
+            "values": [
+                "0000"
+            ],
+            "name": "prefixoDependencia"
+        },
+        {
+            "values": [
+                "CONTRATADO"
+            ],
+            "name": "tx-cmss-usu"
+        },
+        {
+            "values": [
+                "00000000000"
+            ],
+            "name": "nr-cpf"
+        },
+        {
+            "values": [
+                "f999999"
+            ],
+            "name": "uid"
+        },
+        {
+            "values": [
+                "521800"
+            ],
+            "name": "cd-eqp"
+        },
+        {
+            "values": [
+                "0"
+            ],
+            "name": "cd-ncl"
+        },
+        {
+            "values": [
+                "9903"
+            ],
+            "name": "prefixoDiretoria"
+        },
+        {
+            "values": [
+                "C"
+            ],
+            "name": "cd-tip-idgl"
+        },
+        {
+            "values": [
+                "JOHN DOE"
+            ],
+            "name": "nomeGuerra"
+        },
+        {
+            "values": [
+                "0"
+            ],
+            "name": "cd-dvs"
+        },
+        {
+            "values": [
+                "John Doe Full Name"
+            ],
+            "name": "sn"
+        },
+        {
+            "values": [
+                "0"
+            ],
+            "name": "prefixoSuperEstadual"
+        },
+        {
+            "values": [
+                "1"
+            ],
+            "name": "codigoInstituicao"
+        },
+        {
+            "values": [
+                "cn=athdispl,ou=ath,ou=aplicacao,ou=grupos,ou=acesso,o=bb,c=br",
+                "cn=athsrv00,ou=ath,ou=aplicacao,ou=grupos,ou=acesso,o=bb,c=br",
+                "cn=igagserv,ou=iga,ou=aplicacao,ou=grupos,ou=acesso,o=bb,c=br",
+                "cn=athsrv01,ou=ath,ou=aplicacao,ou=grupos,ou=acesso,o=bb,c=br"
+            ],
+            "name": "bb-filtergroup"
+        },
+        {
+            "values": [
+                "iZ6aiYYzzSP8VO6LYxtiJg=="
+            ],
+            "name": "_pwd"
+        },
+        {
+            "values": [
+                "F999999"
+            ],
+            "name": "cd-idgl-usu"
+        },
+        {
+            "values": [
+                "web-calc openid profile",
+                "oaas openid profile",
+                "portal85 openid profile"
+            ],
+            "name": "oauth2savedconsent"
+        },
+        {
+            "values": [
+                "John"
+            ],
+            "name": "primeiroNome "
+        },
+        {
+            "values": [
+                "Doe Full Name"
+            ],
+            "name": "sobrenomeCompleto"
+        },
+        {
+            "values": [
+                "F9999999 John Doe Full Name"
+            ],
+            "name": "cn"
+        },
+        {
+            "values": [
+                "$90"
+            ],
+            "name": "criticidade"
+        },
+        {
+            "values": [
+                "9905"
+            ],
+            "name": "cd-pref-depe"
+        },
+        {
+            "values": [
+                "G302280931019788"
+            ],
+            "name": "idSessao"
+        },
+        {
+            "values": [
+                "513134558"
+            ],
+            "name": "cd-cli"
+        },
+        {
+            "values": [
+                "John Doe"
+            ],
+            "name": "displayname"
+        },
+        {
+            "values": [
+                "1"
+            ],
+            "name": "cd-ior"
+        },
+        {
+            "values": [
+                "22"
+            ],
+            "name": "codigoPilar"
+        },
+        {
+            "values": [
+                "DF"
+            ],
+            "name": "nomeUF"
+        },
+        {
+            "values": [
+                "F9999999"
+            ],
+            "name": "ibm-nativeid"
+        },
+        {
+            "values": [
+                "20261"
+            ],
+            "name": "cd-uor-dep"
+        },
+        {
+            "values": [
+                "An/l4K4THLnNL9mJZ1FugA=="
+            ],
+            "name": "chaveCripto"
+        },
+        {
+            "values": [
+                "0K5LHZOStUO2N4ULdvlWOQ=="
+            ],
+            "name": "employeenumber"
+        },
+        {
+            "values": [
+                "JOHN DOE FULL NAME"
+            ],
+            "name": "nomeFuncionario"
+        },
+        {
+            "values": [
+                "John Doe Full Name"
+            ],
+            "name": "nm-idgl"
+        },
+        {
+            "values": [
+                "22"
+            ],
+            "name": "tipoDependencia"
+        },
+        {
+            "values": [
+                "3"
+            ],
+            "name": "cd-tip-dep"
+        },
+        {
+            "values": [
+                "F9999999"
+            ],
+            "name": "chaveFuncionario"
+        },
+        {
+            "values": [
+                "1"
+            ],
+            "name": "cd-inst"
+        },
+        {
+            "values": [
+                "f9999999@interno.bb.com.br"
+            ],
+            "name": "mail"
+        }
+    ],
+    "token": {
+        "tokenId": "5wR1C6svpAvuydQzUJrRcVWvVpI.*AAJTSQACMDMAAlNLABxBeWRJNmltUi9seGUrRFYyRWRRY3ZNSXlBWWM9AAR0eXBlAANDVFMAAlMxAAIwNQ..*"
+    },
+    "dispAcessos": {
+        "rotas": [ "/canais/brasilprev", "/controle-acesso", "registro-acesso", "/brasilprev", "/lista-indicadores", "*"]
+    }
+}

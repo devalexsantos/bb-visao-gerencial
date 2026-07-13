@@ -3,6 +3,7 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { App } from "./App"
 import { ErrorBoundary } from "./components/ErrorBoundary"
+import AuthContextProvider from "./contexts/AuthContext"
 import "./index.css"
 
 const queryClient = new QueryClient({
@@ -18,9 +19,11 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
+      <AuthContextProvider>
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>
+      </AuthContextProvider>
     </QueryClientProvider>
   </StrictMode>,
 )
