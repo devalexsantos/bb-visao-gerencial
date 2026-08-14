@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { portalApi } from "../services/portalApi"
 import { derivarAreas } from "../utils/areas"
+import { isVigente } from "../utils/status"
 
 const UMA_HORA = 60 * 60 * 1000
 
@@ -12,7 +13,11 @@ export const useAreas = () =>
     gcTime: UMA_HORA,
     refetchOnWindowFocus: false,
     select: (data) =>
-      derivarAreas(Array.isArray(data?.result) ? data.result : []),
+      derivarAreas(
+        (Array.isArray(data?.result) ? data.result : []).filter((a) =>
+          isVigente(a.status),
+        ),
+      ),
   })
 
 export const useAnsPorArea = (area: string | null) =>
