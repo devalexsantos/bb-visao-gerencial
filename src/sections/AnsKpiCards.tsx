@@ -52,6 +52,11 @@ export function AnsKpiCards({
                   conformes
                 </span>
               )}
+              {ans.nome_uor?.trim() && (
+                <span className="text-[10px] font-bold mt-3 pt-2 w-full text-center break-words opacity-70 border-t border-current/20">
+                  {ans.nome_uor}
+                </span>
+              )}
             </button>
           )
         })}

@@ -1,6 +1,7 @@
 import type {
   AnsAreaResponse,
   AnsRacsResponse,
+  AnsServicoResponse,
   ApiError,
   RacRcosResponse,
   RcoHistoricoResponse,
@@ -64,6 +65,8 @@ async function callPortalApi<T>(params: Params): Promise<T> {
 }
 
 export const portalApi = {
+  todosAns: () => callPortalApi<AnsServicoResponse>({ acao: "ans_servico" }),
+
   ansPorArea: (area: string) =>
     callPortalApi<AnsAreaResponse>({ acao: "ans_area", area }),
 

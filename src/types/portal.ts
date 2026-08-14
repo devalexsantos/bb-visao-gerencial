@@ -44,6 +44,26 @@ export interface AnsAreaResponse {
   result: Ans[]
 }
 
+// ---------- Ação: ans_servico (sem filtro: catálogo completo de ANS) ----------
+export interface AnsResumo {
+  number: string
+  numero_ans: string
+  apelido: string
+  servico: string
+  nome_uor: string
+  status?: string
+  state?: string
+  active?: string
+  sys_id: string
+}
+
+export interface AnsServicoResponse {
+  count: number
+  servico_filtro: string | null
+  ofertas: string[]
+  result: AnsResumo[]
+}
+
 // ---------- Ação: ans_racs (acompanhamento mensal do ANS) ----------
 export interface AnsPanel {
   numero_ans: string

@@ -1,5 +1,19 @@
 import { useQuery } from "@tanstack/react-query"
 import { portalApi } from "../services/portalApi"
+import { derivarAreas } from "../utils/areas"
+
+const UMA_HORA = 60 * 60 * 1000
+
+export const useAreas = () =>
+  useQuery({
+    queryKey: ["ans_areas"],
+    queryFn: () => portalApi.todosAns(),
+    staleTime: UMA_HORA,
+    gcTime: UMA_HORA,
+    refetchOnWindowFocus: false,
+    select: (data) =>
+      derivarAreas(Array.isArray(data?.result) ? data.result : []),
+  })
 
 export const useAnsPorArea = (area: string | null) =>
   useQuery({

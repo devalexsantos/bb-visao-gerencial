@@ -7,6 +7,7 @@ import { AnsRacs } from "./sections/AnsRacs"
 import { AreaFilter } from "./sections/AreaFilter"
 import { IndicatorHistory } from "./sections/IndicatorHistory"
 import { RacRcos } from "./sections/RacRcos"
+import { areaDeUor } from "./utils/areas"
 
 export function App() {
   const [selectedArea, setSelectedArea] = useState<string | null>(null)
@@ -62,7 +63,9 @@ export function App() {
   // Dados da API
   const ansQuery = useAnsPorArea(selectedArea)
   const ansList = Array.isArray(ansQuery.data?.result)
-    ? ansQuery.data.result
+    ? ansQuery.data.result.filter(
+        (a) => !selectedArea || areaDeUor(a.nome_uor) === selectedArea,
+      )
     : []
   const selectedAns = ansList.find((a) => a.sys_id === selectedAnsSysId)
   const ansNome = selectedAns
