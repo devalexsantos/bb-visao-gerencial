@@ -287,7 +287,7 @@
                 periodo: rco.getValue('periodo'),
                 periodo_date: rco.getValue('periodo_date'),
                 periodo_label: labelPeriodo(rco.getValue('periodo_date')),
-                motivo: rco.getValue('motivo'),
+                motivo: rco.getDisplayValue('motivo'),
                 situacao: rco.getValue('situacao'),
                 sys_id: rco.getValue('sys_id')
             });
@@ -382,7 +382,7 @@
             resultado: base.getValue('resultado'),
             periodo: base.getValue('periodo'),
             periodo_label: labelPeriodo(periodoBase),
-            motivo: base.getValue('motivo'),
+            motivo: base.getDisplayValue('motivo'),
             acoes_preventivas: base.getValue('acoes_preventivas'),
             parecer_do_aprovador: base.getValue('parecer_do_aprovador'),
             data_de_resposta: base.getValue('data_de_resposta'),
